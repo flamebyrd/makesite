@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        .important { color: #336699; }
+    </style>
+{% endblock %}
+{% block content %}
+<article>
+<h1><a href="{{ base_path }}/{{ blog }}/{{ slug }}/">{{ title }}</a></h1>
+<p class="meta">Published on {{ date }} by <b>{{ author }}</b></p>
+{{ content }}
+</article>
+{% endblock %}

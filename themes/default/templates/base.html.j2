@@ -1,41 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ title }} - {{ subtitle }}</title>
+    {% block head %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" type="text/css" href="{{ base_path }}/css/style.css">
+    <title>{% block title %}{% endblock %} - {{ site_title }}</title>
+    {% endblock %}
 </head>
 
 <body id="{{ slug }}">
 
 <nav>
+{% block navigation %}
 <section>
     <span class="home">
         <a href="{{ base_path }}/">Home</a>
     </span>
     <span class="links">
-        <a href="{{ base_path }}/blog/">Blog</a>
-        <a href="{{ base_path }}/news/">News</a>
-        <a href="{{ base_path }}/contact/">Contact</a>
-        <a href="{{ base_path }}/about/">About</a>
+        {{ folder_links }}
     </span>
 </section>
 </nav>
+{% endblock %}
 
 <main>
-{{ content }}
+{% block content %}{% endblock %}
 </main>
 
 <footer>
+  {% block footer %}
 <section>
-<p>&copy; {{ current_year }} Lorem Ipsum</p>
+<p>&copy; {{ current_year }}</p>
 <p>
     <a href="https://twitter.com/sunainapai">Twitter</a>
     <a href="https://github.com/sunainapai">GitHub</a>
     <a href="https://www.example.com/">Example</a>
 </p>
 </section>
+{% endblock %}
 </footer>
 
 </body>
