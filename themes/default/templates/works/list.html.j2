@@ -1,0 +1,37 @@
+{% extends "base.html.j2" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+
+{% set grouping = config.get("group_by") %}
+
+{% if grouping %}
+{% set ns = namespace( h_depth = 2, loop_depth = -1, group_name = grouping[0] ) %}
+
+{% for group, works, depth in items|grouprecursive(grouping) -%}
+    {% set ns.group_name = grouping[depth] -%}
+    {% if group -%} {# We only want to insert a heading if this group has a value #}
+    {% if ns.loop_depth != depth -%} {# If we're working with another group type we need to update the heading depth #}
+        {% set ns.loop_depth = depth -%}
+        {% set ns.h_depth = 2 if depth == 0 else ns.h_depth+1 -%}
+    {% endif -%}
+    <h{{ ns.h_depth }} class="{{ ns.group_name }}">{{ group }}</h{{ ns.h_depth }}>
+    {% endif -%}
+    {% if works -%}
+        {% set h_depth = ns.h_depth+1 -%}
+        {% for work in works -%}
+        <article>
+        <h{{ h_depth }} class="title"><a href="{{ work.base_path }}/{{ work.type }}/{{ work.slug }}/">{{ work.title }}</a></h{{ h_depth }}>
+        {{ work.content }}</article>
+        {% endfor -%}
+    {% endif -%}
+{% endfor %}
+
+{% else %} {# If no grouping is set #}
+{% for work in items %}
+<article>
+<h2 class="title"><a href="{{ work.base_path }}/{{ work.type }}/{{ work.slug }}/">{{ work.title }}</a></h2>
+{{ work.content }}
+</article>
+{% endfor %}
+{% endif %}
+{% endblock %}

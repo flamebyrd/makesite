@@ -1,0 +1,83 @@
+{% extends "base.html.j2" %}
+{% block title %}{{ title }}{% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        .important { color: #336699; }
+    </style>
+{% endblock %}
+{% block content %}
+<article>
+  <h1>{{ title }}</h1>
+  <div id="preface">
+    <h2 class="toc-heading">Preface</h2>
+
+    {{ top_message }}
+
+    <div class="meta">
+      <dl class="tags">
+          {{ meta('Rating', rating )}}
+          {{ meta('Archive Warning', archive_warning) }}
+          {{ meta('Category', category) }}
+          {{ meta('Fandom', fandom) }}
+          {{ meta('Relationship', relationship) }}
+          {{ meta('Character', character) }}
+          {{ meta('Additional Tags', additional_tags) }}
+          {{ meta('Language', language) }}
+          {{ meta('Series', series) }}
+        <dt>Stats:</dt>
+        <dd>
+          Published: {{ date }}
+          Words: {{ words }}
+          Chapters: {{ chapters }}
+        </dd>
+      </dl>
+      <h1>{{ title }}</h1>
+      <div class="byline">by {{ meta(author) }}</div>
+        <p>Summary</p>
+        {% if summary -%}
+        <blockquote class="userstuff">{{ summary }}</blockquote>
+        {% endif %}
+
+        {% if notes -%}
+        <p>Notes</p>
+          <blockquote class="userstuff">{{ notes }}</blockquote>
+        {% endif %}
+        {% if end_notes -%}
+          <div class="endnote-link">
+            See the end of the work for more <a href="#endnotes">notes</a>
+          </div>
+        {% endif %}
+  </div>
+  </div>
+
+{% if chapters_content %}
+{% for chapter in chapters_content %}
+ <h2>{{ chapter.title }}</h2>
+{% if chapter.notes %}
+<blockquote>
+{{ chapter.notes }}
+</blockquote>
+{% endif %}
+{{ chapter.content }}
+{% if chapter.end_notes %}
+<blockquote>
+{{ chapter.end_notes }}
+</blockquote>
+{% endif %}
+{% endfor %}
+{% else %}
+{{ content }}
+{% endif %}
+</article>
+{% endblock %}
+
+{% macro meta(label, value) -%}
+{% if value -%}
+{% if value is not string and value is sequence %}
+{% set value = value|join(', ') %}
+{% endif %}
+<dt>{{ label }}:</dt>
+<dd>{{ value }}</dd>
+{% endif %}
+{%- endmacro %}

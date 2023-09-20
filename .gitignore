@@ -6,3 +6,6 @@ htmlcov
 *.sw?
 .DS_Store
 venv
+content
+params.json
+.*
