@@ -37,6 +37,7 @@ import datetime
 import jinja2
 from itertools import groupby
 from collections.abc import Iterable
+from collections import defaultdict
 
 
 def fread(filename):
@@ -100,10 +101,11 @@ def read_content(filename, **params):
         try:
             if _test == 'ImportError':
                 raise ImportError('Error forced by test')
-            content, text = read_ao3_content(content, text, **params)
-            content = { k.casefold().replace(' ', '_').replace('\'"', ''): v for k, v in content.items() }
+            ao3_content, text = read_ao3_content(text, **params)
+            ao3_content = { k.casefold().replace(' ', '_').replace('\'"', ''): v for k, v in ao3_content.items() }
+            content.update(**ao3_content)
         except ImportError as e:
-            log('WARNING: Cannot render Markdown in {}: {}', filename, str(e))
+            log('WARNING: Cannot read HTML in {}: {}', filename, str(e))
     else:
         # Read headers.
         end = 0
@@ -131,9 +133,10 @@ def read_content(filename, **params):
 
     return content
 
-def read_ao3_content(content, text, **params):
+def read_ao3_content(text, **params):
     from bs4 import BeautifulSoup
     config = params.get("config")
+    content = {}
     # soup = BeautifulSoup(text, 'html.parser')
     soup = BeautifulSoup(text, "lxml")
     content['title']= soup.h1.get_text()
@@ -166,7 +169,6 @@ def read_ao3_content(content, text, **params):
                     series.append({ "index": series_index, "title": link.get_text() })
                 tag_val = series
             elif "Additional Tags" == tag_name:
-                # if "media_tags" in params or "excluded_tags" in params:
                 filtered_tags = []
                 for freeform_tag in tag_val:
                     tag_text = freeform_tag.get_text()
@@ -286,36 +288,6 @@ def render_metadata(params, template):
 def format_metadata(val, format):
     return format.format(**val)
 
-def make_pages(src, dst, layout, **params):
-    """Generate pages from page content."""
-    items = []
-
-    for src_path in glob.glob(src):
-        content = read_content(src_path, **params)
-
-        page_params = dict(params, **content)
-        # This section is disabled until I figure out what to do with keyword replacement in content files
-        # Populate placeholders in content if content-rendering is enabled.
-        # if page_params.get('render') == 'yes':
-            # # rendered_content = render(page_params['content'], **render_metadata(page_params, template='single') )
-            # rendered_content = render(**render_metadata(page_params, template='single'))
-            # page_params['content'] = rendered_content
-            # content['content'] = rendered_content
-
-        # page_params = render_metadata(page_params, template='single')
-
-        items.append(content)
-
-        dst_path = render(dst, **page_params)
-
-        output = layout.render(**page_params)
-
-        log('Rendering {} => {} ...', src_path, dst_path)
-        fwrite(dst_path, output)
-
-    return items
-    # return sorted(items, key=lambda x: x['date'], reverse=True)
-
 def flattenbyattribute(value, attribute):
     output = []
     for item in value:
@@ -380,6 +352,61 @@ def group_recursive(items, groups, depth = 0):
             output.append((group, values, depth))
     return output
 
+# def generate_uri(filename):
+#     match = re.search(r'^content/(.*?)/index.html$', filename)
+#     return match[1]
+
+def make_pages(src, dst, layout, **params):
+    """Generate pages from page content."""
+    items = []
+    series_nav = defaultdict(dict)
+
+    for src_path in glob.glob(src):
+        content = read_content(src_path, **params)
+
+        content['src_path'] = src_path
+
+        #Put all series information in a list so we can generate next/previous work links
+        if series := content.get('series'):
+            for s in series:
+                series_nav[s.get('title')][s.get('index')] = { 'uri': f"{params['base_path']}/{params['type']}/{content['slug']}", 'title': content['title'] }
+
+        items.append(content)
+
+    #Create the content files, and generate series navigation
+    for content in items:
+        if series := content.get('series'):
+            for i, s in enumerate(series):
+                series_works = series_nav.get(s.get('title'))
+                print(series_works)
+                current_index = int(s.get('index'))
+                if next_work := series_works.get(str(current_index +1)):
+                    s['next'] = next_work
+                if prev_work := series_works.get(str(current_index -1)):
+                    s['prev'] = prev_work
+
+        page_params = dict(params, **content)
+
+        # This functionality is disabled until I figure out what to do with keyword replacement in content files
+        # Populate placeholders in content if content-rendering is enabled.
+        # if page_params.get('render') == 'yes':
+            # # rendered_content = render(page_params['content'], **render_metadata(page_params, template='single') )
+            # rendered_content = render(**render_metadata(page_params, template='single'))
+            # page_params['content'] = rendered_content
+            # content['content'] = rendered_content
+
+        # page_params = render_metadata(page_params, template='single')
+
+        dst_path = render(dst, **page_params)
+
+        output = layout.render(**page_params)
+        
+        log('Rendering {} => {} ...', content['src_path'], dst_path)
+        fwrite(dst_path, output)
+
+    return items
+    # return sorted(items, key=lambda x: x['date'], reverse=True)
+
 def make_list(files, dst, list_layout, item_layout, **params):
     """Generate list page for a blog."""
     config = params.get("config")
@@ -438,7 +465,16 @@ def main():
         'site_url': 'http://localhost:8000',
         'theme': 'default',
         'current_year': datetime.datetime.now().year,
-        'config': { }
+        'config': {
+            "//order_by": [["fandom", False],["date", True],["title", False]],
+            "order_by": ["date", True],
+            "group_by": [ "fandom", "subfandom", "series"],
+            "media_tags": ["fanfiction", "fanart", "fanvid"],
+            "media_type_default": "fanfiction",
+            "excluded_tags": [],
+            "merge_tags": [],
+            "fandom_groups": []
+         }
     }
 
     sys.stdin.reconfigure(encoding='utf-8')
@@ -451,9 +487,12 @@ def main():
         shutil.rmtree('_site', ignore_errors=False)
     shutil.copytree(f'{ theme_dir }/static', '_site')
 
-    # If params.json exists, load it.
+    # If params.json exists, load it, otherwise create it.
     if os.path.isfile('params.json'):
         params.update(json.loads(fread('params.json')))
+    else:
+        with open('params.json', 'w') as outfile:
+            json.dump(params, outfile, indent=2)
 
     #Load Jinja2 templates
     template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(f'{ theme_dir }/templates'))

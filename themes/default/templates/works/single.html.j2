@@ -24,7 +24,17 @@
           {{ meta('Character', character) }}
           {{ meta('Additional Tags', additional_tags) }}
           {{ meta('Language', language) }}
-          {{ meta('Series', series) }}
+          {% if series %}
+          <dt>Series:</dt>
+          <dd>
+            {% for s in series %}
+            <span class="series">{% if s.prev %}<a class="previous" href="{{ s.prev.uri }}">← Previous Work</a></span> | {% endif %}
+            <span class="position">Part {{ s.index }} of <span class="title">{{ s.title }}</span></span> 
+            {% if s.next %} | <a class="next" href="{{ s.next.uri }}">Next Work →</a>{% endif %}
+            </span>{% if not loop.last %}, {% endif %}
+            {% endfor %}
+          </dd>
+          {% endif %}
         <dt>Stats:</dt>
         <dd>
           Published: {{ date }}
@@ -68,6 +78,22 @@
 {% endfor %}
 {% else %}
 {{ content }}
+{% endif %}
+
+{% if series %}
+<div id="series" class="series">
+<h3 class="heading">Series this work belongs to:</h3>
+<ul>
+{% for s in series %}
+<li>
+<span class="series">{% if s.prev %}<a class="previous" href="{{ s.prev.uri }}">← Previous Work</a></span> | {% endif %}
+<span class="position">Part {{ s.index }} of <span class="title">{{ s.title }}</span></span> 
+{% if s.next %} | <a class="next" href="{{ s.next.uri }}">Next Work →</a>{% endif %}
+</span>
+</li>
+{% endfor %}
+</ul>
+</div>
 {% endif %}
 </article>
 {% endblock %}
