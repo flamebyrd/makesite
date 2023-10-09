@@ -67,11 +67,11 @@ def truncate(text, words=25):
 
 
 def read_headers(text):
-    """Parse headers in text and yield (key, value, end-index) tuples."""
+    """Parse headers in text and yield (key, value) tuples."""
     for match in re.finditer(r'\s*<!--\s*(.+?)\s*:\s*(.+?)\s*-->\s*|.+', text):
         if not match.group(1):
             break
-        yield match.group(1), match.group(2), match.end()
+        yield match.group(1), match.group(2)
 
 
 def rfc_2822_format(date_str):
@@ -82,7 +82,7 @@ def rfc_2822_format(date_str):
 def read_content(filename, **params):
     """Read content and metadata from file into a dictionary."""
 
-    log(filename)
+    log("Reading: " + filename)
 
     # Read file content.
     text = fread(filename)
@@ -97,19 +97,17 @@ def read_content(filename, **params):
 
     if filename.endswith(('.html')) and '<div id="preface">' in text:
         # File is probably an AO3 work
-        log('Work: ' + filename)
         try:
             if _test == 'ImportError':
                 raise ImportError('Error forced by test')
             ao3_content, text = read_ao3_content(text, **params)
-            ao3_content = { k.casefold().replace(' ', '_').replace('\'"', ''): v for k, v in ao3_content.items() }
             content.update(**ao3_content)
         except ImportError as e:
             log('WARNING: Cannot read HTML in {}: {}', filename, str(e))
     else:
         # Read headers.
         end = 0
-        for key, val, end in read_headers(text):
+        for key, val in read_headers(text):
             content[key] = val
 
         # Separate content from headers.
@@ -125,10 +123,13 @@ def read_content(filename, **params):
             except ImportError as e:
                 log('WARNING: Cannot render Markdown in {}: {}', filename, str(e))
 
+    from datetime import date
+
     # Update the dictionary with content and RFC 2822 date.
     content.update({
         'content': text,
-        'rfc_2822_date': rfc_2822_format(content['date'])
+        'rfc_2822_date': rfc_2822_format(content['date']),
+        'date_obj': date.fromisoformat(content['date'])
     })
 
     return content
@@ -204,7 +205,16 @@ def read_ao3_content(text, **params):
     if matches:
         for label, value in matches:
             content.update({ label: value })
+
     content["date"] = content.pop("Published")
+
+    # Make all keys lowercase
+    content = { k.casefold().replace(' ', '_').replace('\'"', ''): v for k, v in content.items() }
+
+    if "words" in content:
+        import locale
+        locale.setlocale(locale.LC_ALL, '')
+        content['words'] = locale.atoi(content['words'])
     chapters_div = soup.find(id='chapters', class_="userstuff")
     text = chapters_div.decode_contents(formatter='minimal')
     chapters = []
@@ -227,7 +237,6 @@ def read_ao3_content(text, **params):
         else:
             continue
     content["chapters_content"] = list(chapters)
-    #text = soup.body.decode_contents(formatter='minimal')
     soup.decompose()
 
     return content, text
@@ -251,6 +260,15 @@ def render(template, **params):
     return re.sub(r'{{\s*([^}\s]+)\s*}}',
                   lambda match: str(params.get(match.group(1).casefold(),match.group(0))),
                   template)
+
+# Formats a number as 1K, 2.5K, 1M, etc. From https://stackoverflow.com/a/45478574
+def human_format(num):
+    num = float('{:.3g}'.format(num))
+    magnitude = 0
+    while abs(num) >= 1000:
+        magnitude += 1
+        num /= 1000.0
+    return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
 
 def render_metadata(params, template):
     # This function is not currently being used, but retained for posterity
@@ -288,7 +306,7 @@ def render_metadata(params, template):
 def format_metadata(val, format):
     return format.format(**val)
 
-def flattenbyattribute(value, attribute):
+def flatten_by_attribute(value, attribute):
     output = []
     for item in value:
         if properties := item.get(attribute):
@@ -327,7 +345,7 @@ def group_fandoms(config, works):
 def group_recursive(items, groups, depth = 0):
     output = []
     attribute = groups[depth]
-    items = flattenbyattribute(items, attribute) # If the attribute is a list this will fix it
+    items = flatten_by_attribute(items, attribute) # If the attribute is a list this will fix it
     items.sort(key=lambda x: x.get(attribute)) # groupby() requires input to be sorted
     for group, values in groupby(items, key=lambda x: x.get(attribute)):
         values = list(values)
@@ -352,9 +370,18 @@ def group_recursive(items, groups, depth = 0):
             output.append((group, values, depth))
     return output
 
-# def generate_uri(filename):
-#     match = re.search(r'^content/(.*?)/index.html$', filename)
-#     return match[1]
+def generate_uri(content):
+    if content.get('dst_path'):
+        match = re.search(r'^_site/(.*?)/index.html$', content['dst_path'])
+        if ( match ):
+            folder = match[1]
+            return f"{content['base_path']}/{folder}/"
+    return f"{content['base_path']}/{content['slug']}"
+
+def generate_html_id(text):
+    text = text.replace(" ", "_")
+    text = text.casefold()
+    return re.sub("\W", "", text)
 
 def make_pages(src, dst, layout, **params):
     """Generate pages from page content."""
@@ -363,13 +390,24 @@ def make_pages(src, dst, layout, **params):
 
     for src_path in glob.glob(src):
         content = read_content(src_path, **params)
+        content = dict(params, **content)
 
         content['src_path'] = src_path
+
+        # If the file is index.html we don't want to create a subfolder for it
+        if os.path.basename(src_path) == 'index.html':
+            content['slug'] = ''          
+            content['dst_path'] = render(dst, **content ).replace('//', '/')
+        else:
+            content['dst_path'] = render(dst, **content)
+
+        if not content.get('uri'):
+            content['uri'] = generate_uri(content)
 
         #Put all series information in a list so we can generate next/previous work links
         if series := content.get('series'):
             for s in series:
-                series_nav[s.get('title')][s.get('index')] = { 'uri': f"{params['base_path']}/{params['type']}/{content['slug']}", 'title': content['title'] }
+                series_nav[s.get('title')][s.get('index')] = { 'uri': generate_uri(content), 'title': content['title'] }
 
         items.append(content)
 
@@ -378,14 +416,13 @@ def make_pages(src, dst, layout, **params):
         if series := content.get('series'):
             for i, s in enumerate(series):
                 series_works = series_nav.get(s.get('title'))
-                print(series_works)
                 current_index = int(s.get('index'))
                 if next_work := series_works.get(str(current_index +1)):
                     s['next'] = next_work
                 if prev_work := series_works.get(str(current_index -1)):
                     s['prev'] = prev_work
 
-        page_params = dict(params, **content)
+        # page_params = dict(params, **content)
 
         # This functionality is disabled until I figure out what to do with keyword replacement in content files
         # Populate placeholders in content if content-rendering is enabled.
@@ -397,12 +434,17 @@ def make_pages(src, dst, layout, **params):
 
         # page_params = render_metadata(page_params, template='single')
 
-        dst_path = render(dst, **page_params)
+        # rel_path = os.path.relpath(content['src_path'], 'content')
 
-        output = layout.render(**page_params)
+        output = layout.render(**content)
         
-        log('Rendering {} => {} ...', content['src_path'], dst_path)
-        fwrite(dst_path, output)
+        import hashlib
+        contents_hash = hashlib.md5(output.encode())
+        content['md5'] = contents_hash.hexdigest()
+
+        if not content.get('skip_rendering'):
+            log('Rendering {} => {} ...', content['src_path'], content['dst_path'])
+            fwrite(content['dst_path'], output)
 
     return items
     # return sorted(items, key=lambda x: x['date'], reverse=True)
@@ -422,7 +464,7 @@ def make_list(files, dst, list_layout, item_layout, **params):
     else:
         files.sort(key=lambda x: x.get("date"), reverse=True)
 
-    if "series" in config.get("group_by"):
+    if config.get("group_by") and "series" in config.get("group_by"):
         files.sort(key=sort_series, reverse=True)
     
     for item in files:
@@ -437,13 +479,13 @@ def make_list(files, dst, list_layout, item_layout, **params):
     if (config.get('group_by')) and (fandom_groups := config.get('fandom_groups')):
         items = group_fandoms(config, items)
 
-    # params['content'] = ''.join(items)
     params['items'] = items
     dst_path = render(dst, **params)
     output = list_layout.render(**params)
 
     log('Rendering list => {} ...', dst_path)
     fwrite(dst_path, output)
+    return output
 
 def sort_series(item):
     if item.get('series'):
@@ -453,6 +495,33 @@ def sort_series(item):
         return tuple(series_sort)
     else:
         return ( '', 0 )
+
+def get_templates(template_env, theme_dir, folder):
+    single_layout = template_env.get_template('single.html.j2')
+    list_layout = template_env.get_template('list.html.j2')
+    summary_layout = template_env.get_template('summary.html.j2')
+    needed_templates = { 'single': True, 'summary': True, 'list': True}
+    folder_tree = folder.split('/')
+    theme_templates_dir = os.path.join(theme_dir, 'templates')
+    while folder_tree:
+        template_path = os.path.join(*folder_tree)
+        print('Template path: ' + template_path)
+        if os.path.isdir(os.path.join(theme_templates_dir, template_path)):
+            template_filenames = os.listdir(os.path.join(theme_templates_dir, template_path))
+            if needed_templates['single'] and 'single.html.j2' in template_filenames:
+                single_layout = template_env.get_template( os.path.join(template_path, 'single.html.j2'))
+                print(single_layout)
+                needed_templates['single'] = False
+            if needed_templates['summary'] and 'summary.html.j2' in template_filenames:
+                summary_layout = template_env.get_template( os.path.join(template_path, 'summary.html.j2'))
+                print(summary_layout)
+                needed_templates['summary'] = False
+            if needed_templates['list'] and 'list.html.j2' in template_filenames:
+                list_layout = template_env.get_template( os.path.join(template_path, 'list.html.j2'))
+                print(list_layout)
+                needed_templates['list'] = False
+        folder_tree.pop()
+    return (single_layout, list_layout, summary_layout)
 
 def main():
 
@@ -469,6 +538,7 @@ def main():
             "//order_by": [["fandom", False],["date", True],["title", False]],
             "order_by": ["date", True],
             "group_by": [ "fandom", "subfandom", "series"],
+            "group_nav": True,
             "media_tags": ["fanfiction", "fanart", "fanvid"],
             "media_type_default": "fanfiction",
             "excluded_tags": [],
@@ -480,6 +550,20 @@ def main():
     sys.stdin.reconfigure(encoding='utf-8')
     sys.stdout.reconfigure(encoding='utf-8')
 
+    # If params.json exists, load it, otherwise create it.
+    if os.path.isfile('params.json'):
+        # We can't do a traditional merge because this dictionary contains another dictionary
+        user_params = json.loads(fread('params.json'))
+        params.update(user_params)
+        # for key, val in  user_params.items():
+        #     if params.get(key) and isinstance(val, dict):
+        #         params[key].update(val)
+        #     else:
+        #         params[key] = val
+    else:
+        with open('params.json', 'w') as outfile:
+            json.dump(params, outfile, indent=2)
+
     theme_dir = f"themes/{params.get('theme', 'default') }"
 
     # Create a new _site directory from scratch.
@@ -487,55 +571,42 @@ def main():
         shutil.rmtree('_site', ignore_errors=False)
     shutil.copytree(f'{ theme_dir }/static', '_site')
 
-    # If params.json exists, load it, otherwise create it.
-    if os.path.isfile('params.json'):
-        params.update(json.loads(fread('params.json')))
-    else:
-        with open('params.json', 'w') as outfile:
-            json.dump(params, outfile, indent=2)
-
     #Load Jinja2 templates
     template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(f'{ theme_dir }/templates'))
-    template_env.filters["flattenbyattribute"] = flattenbyattribute
+    template_env.filters["flattenbyattribute"] = flatten_by_attribute
     template_env.filters["grouprecursive"] = group_recursive
+    template_env.filters["htmlid"] = generate_html_id
+    template_env.filters["humanformat"] = human_format
 
-    page_layout = template_env.get_template('single.html.j2')
     single_layout = template_env.get_template('single.html.j2')
     list_layout = template_env.get_template('list.html.j2')
     summary_layout = template_env.get_template('summary.html.j2')
 
-    # Create site pages.
-    make_pages('content/_index.html', '_site/index.html',
-               page_layout, **params)
-    make_pages('content/[!_]*.html', '_site/{{ slug }}/index.html',
-               page_layout, **params)
-
     # Create subfolder pages.
-    # Grab the list of top-level subfolders from the 'content' folder (next grabs first item of os.walk object, [1] grabs the second item in the returned tuple)
-    content_folders = next(os.walk('content'))[1]
-    params["folder_links"] = ' '.join( list( map( lambda folder: f"<a href=\"{ params.get('base_path') }/{ folder }\">{ folder.title() }</a>", content_folders ) ) )
-    for folder in content_folders:
+    theme_folder_templates = False
+    if os.listdir(os.path.join(theme_dir, 'templates')):
+        theme_folder_templates = True
+
+    for (dirpath, dirnames, filenames) in os.walk('content', topdown=True):
+        log('Reading ' + dirpath)
         folder_params = params
-        if os.path.isfile(f'{folder}/_index.html'):
-            folder_params.update(read_headers(fread(f'{folder}/_index.html')))
+        folder = os.path.relpath(dirpath, 'content')
+        # Fetching metadata for the index page (also sets defaults for content in this folder)
+        if os.path.isfile( os.path.join(dirpath, '_index.html') ):
+            folder_params.update(read_content(os.path.join(dirpath, '_index.html'), **folder_params))
+        
+        # Fetch content templates from theme, starting in the current folder and walking back up the folder tree
+        # This allows overriding templates with ones from closer in the file tree
+        if theme_folder_templates: 
+            single_layout, list_layout, summary_layout = get_templates(template_env, theme_dir, folder)
 
-        folder_single_layout = single_layout
-        log(f'{ theme_dir }/templates/{folder}/single.html.j2')
-        if os.path.isfile(f'{ theme_dir }/templates/{folder}/single.html.j2'):
-            folder_single_layout = template_env.get_template(f'{folder}/single.html.j2')
-        folder_items = make_pages(f'content/{folder}/[!_]*.*',
-                                f'_site/{folder}/{{{{ slug }}}}/index.html',
-                                folder_single_layout, type=folder, **folder_params)
+        folder_items = make_pages(os.path.join(dirpath, '[!_]*.*'),
+                os.path.normpath(os.path.join('_site', folder, '{{ slug }}/index.html')),
+                single_layout, type=folder, **folder_params)
 
-        folder_summary_layout = summary_layout
-        if os.path.isfile(f'{ theme_dir }/templates/{folder}/summary.html.j2'):
-            folder_summary_layout = template_env.get_template(f'{folder}/summary.html.j2')
-        folder_list_layout = list_layout
-        if os.path.isfile(f'{ theme_dir }/templates/{folder}/list.html.j2'):
-            folder_list_layout = template_env.get_template(f'{folder}/list.html.j2')
-
-        make_list(folder_items, f'_site/{folder}/index.html',
-                  folder_list_layout, folder_summary_layout, type=folder, path=folder, title=folder.title(), **folder_params)
+        if not os.path.isfile(os.path.join(dirpath, 'index.html')):
+            make_list(folder_items, os.path.normpath(os.path.join('_site', folder, 'index.html')),
+                list_layout, summary_layout, type=folder, **folder_params)
 
         # # Create RSS feeds.
         # make_list(blog_posts, '_site/blog/rss.xml',
