@@ -7,7 +7,7 @@
     </style>
 {% endblock %}
 {% block content %}
-<article class="single">
+<article>
   <h1>{{ title }}</h1>
   <div id="preface">
     <h2 class="toc-heading">Preface</h2>
@@ -38,14 +38,14 @@
         <dt>Stats:</dt>
         <dd>
           Published: {{ date }}
-          Words: {{ words }}
-          Chapters: {{ chapters }}
+          {% if words %}Words: {{ words }} {% endif %}
+          {% if chapters %}Chapters: {{ chapters }} {% endif %}
         </dd>
       </dl>
       <h1>{{ title }}</h1>
-      <div class="byline">by {{ author|join(', ') }}</div>
-        <p>Summary</p>
+      <div class="byline">by {{ meta(author) }}</div>
         {% if summary -%}
+        <p>Summary</p>
         <blockquote class="userstuff">{{ summary }}</blockquote>
         {% endif %}
 
@@ -58,7 +58,7 @@
             See the end of the work for more <a href="#endnotes">notes</a>
           </div>
         {% endif %}
-  </div>
+    </div>
   </div>
 
 {% if chapters_content %}

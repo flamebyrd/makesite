@@ -48,11 +48,11 @@ header nav a {
     margin-right: 1em;
 }
 
-header nav a:link, nav a:visited {
+header nav a:link, header nav a:visited {
     color: #cccccc;
 }
 
-header nav a:hover, nav a:active {
+header nav a:hover, header nav a:active {
     color: #ffffff;
     text-decoration: none;
 }
@@ -120,22 +120,6 @@ p.summary {
 div .more {
     margin-top: 0;
     font-weight: bold;
-}
-
-.tags dt, .tags dd, 
-.stats dt, .stats dd {
-    display: inline;
-    width: auto;
-    margin: 0;
-}
-
-.tags dt, .stats dt {
-    color: #3f3f3f
-}
-
-.tags dt:not(:first-child)::before,
-.stats dt:not(:first-child)::before {
-    content: '\a0| ';
 }
 
 

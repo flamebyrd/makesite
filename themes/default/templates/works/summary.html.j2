@@ -1,6 +1,31 @@
-<p class="meta">Published on {{ date }} by <b>{{ author|join(', ') }}</b></p>
-{% if series %} {% for s in series %} Part {{s.index}} of {{s.title}}{% if not loop.last %}, {% endif %}{% endfor %} {% endif %}
-<p class="fandom">Fandom: {{ fandom|join(', ') }}</p>
+{% macro meta(label, value) -%}
+{% if value -%}
+{% if value is not string and value is sequence %}
+{% set value = value|join(', ') %}
+{% endif %}
+<dt class="{{ label|htmlid }}">{{ label }}:</dt><dd>{{ value }}</dd>
+{% endif %}
+{%- endmacro %}
+
+<div class="meta">
+    <dl class="stats">
+        {{ meta('Date', date )}}
+        {{ meta('Author', author )}}
+        {{ meta('Words', words|humanformat )}}
+    </dl>
+    {% if series %}
+        {% for s in series %} Part {{s.index}} of {{s.title}}{% if not loop.last %}, {% endif %}{% endfor %}
+    {% endif %}
+    <dl class="tags">
+        {{ meta('Category', category) }}
+        {{ meta('Rating', rating )}}
+        {{ meta('Archive Warning', archive_warning) }}
+        {{ meta('Fandom', fandom) }}
+        {{ meta('Relationship', relationship) }}
+        {{ meta('Character', character) }}
+        {{ meta('Additional Tags', additional_tags) }}
+    </dl>
+</div>
 <p class="summary">
 {{ summary }}
 </p>
