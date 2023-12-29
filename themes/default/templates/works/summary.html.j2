@@ -1,12 +1,12 @@
-{% macro meta(label, value) -%}
-{% if value -%}
-{% if value is not string and value is sequence %}
-{% set value = value|join(', ') %}
-{% endif %}
-<dt class="{{ label|htmlid }}">{{ label }}:</dt><dd>{{ value }}</dd>
-{% endif %}
+{%- macro meta(label, value) -%}
+{%- if value -%}
+{%- if value is not string and value is sequence %}
+{%- set value = value|join(', ') -%}
+{%- endif %}
+<dt class="{{ label|htmlid }}">{{ label }}:</dt> <dd>{{ value }}</dd>
+{%- endif %}
 {%- endmacro %}
-
+{% if config.ao3_content_type == content_type %}
 <div class="meta">
     <dl class="stats">
         {{ meta('Date', date )}}
@@ -26,6 +26,14 @@
         {{ meta('Additional Tags', additional_tags) }}
     </dl>
 </div>
+{% elif date or author %}
+<div class="meta">
+    <dl class="stats">
+        {{ meta('Date', date )}}
+        {{ meta('Author', author )}}
+    </dl>
+</div>
+{% endif %}
 <p class="summary">
 {{ summary }}
 </p>

@@ -7,8 +7,11 @@
     </style>
 {% endblock %}
 {% block content %}
+<!-- single.html.j2 -->
 <article>
   <h1>{{ title }}</h1>
+  {% if config.ao3_content_type == content_type %}
+  <div class="byline">by {{ author|join(', ') }}</div>
   <div id="preface">
     <h2 class="toc-heading">Preface</h2>
 
@@ -37,13 +40,11 @@
           {% endif %}
         <dt>Stats:</dt>
         <dd>
-          Published: {{ date }}
+          {{ "Published: " ~ date if date }}
           {% if words %}Words: {{ words }} {% endif %}
           {% if chapters %}Chapters: {{ chapters }} {% endif %}
         </dd>
       </dl>
-      <h1>{{ title }}</h1>
-      <div class="byline">by {{ meta(author) }}</div>
         {% if summary -%}
         <p>Summary</p>
         <blockquote class="userstuff">{{ summary }}</blockquote>
@@ -60,6 +61,7 @@
         {% endif %}
     </div>
   </div>
+  {% endif %}
 
 {% if chapters_content %}
 {% for chapter in chapters_content %}

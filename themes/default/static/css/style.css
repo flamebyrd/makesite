@@ -136,6 +136,7 @@ div .more {
 .tags dt:not(:first-child)::before,
 .stats dt:not(:first-child)::before {
     content: '\a0| ';
+    margin-left: -0.15em;
 }
 
 

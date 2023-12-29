@@ -35,9 +35,12 @@ import sys
 import json
 import datetime
 import jinja2
+import copy
 from itertools import groupby
 from collections.abc import Iterable
 from collections import defaultdict
+import pathlib
+import urllib
 
 
 def fread(filename):
@@ -91,7 +94,7 @@ def read_content(filename, **params):
     date_slug = os.path.basename(filename).split('.')[0]
     match = re.search(r'^(?:(\d\d\d\d-\d\d-\d\d)-)?(.+)$', date_slug)
     content = {
-        'date': match.group(1) or '1970-01-01',
+        'date': match.group(1),
         'slug': match.group(2),
     }
 
@@ -102,6 +105,7 @@ def read_content(filename, **params):
                 raise ImportError('Error forced by test')
             ao3_content, text = read_ao3_content(text, **params)
             content.update(**ao3_content)
+            content["content_type"] = params.get('ao3_content_type', 'ao3_work')
         except ImportError as e:
             log('WARNING: Cannot read HTML in {}: {}', filename, str(e))
     else:
@@ -112,6 +116,9 @@ def read_content(filename, **params):
 
         # Separate content from headers.
         text = text[end:]
+
+        if not content.get('content_type') and not params.get('content_type'):
+            content['content_type'] = params.get('default_content_type', 'page')
 
         # Convert Markdown content to HTML.
         if filename.endswith(('.md', '.mkd', '.mkdn', '.mdown', '.markdown')):
@@ -126,11 +133,12 @@ def read_content(filename, **params):
     from datetime import date
 
     # Update the dictionary with content and RFC 2822 date.
-    content.update({
-        'content': text,
-        'rfc_2822_date': rfc_2822_format(content['date']),
-        'date_obj': date.fromisoformat(content['date'])
-    })
+    content['content'] = text
+    if ( content.get('date') ):
+        content.update({
+            'rfc_2822_date': rfc_2822_format(content['date']),
+            'date_obj': date.fromisoformat(content['date'])
+        })
 
     return content
 
@@ -339,7 +347,7 @@ def group_fandoms(config, works):
                     grouped_works.append({ **work, **{'fandom': fandom} })
 
         else:
-            grouped_works.append({ **work, **{'fandom': config.get('no_fandom_label','No Fandom')} })
+            grouped_works.append({ **work, **{'fandom': config.get('no_fandom_label','')} })
     return grouped_works
 
 def group_recursive(items, groups, depth = 0):
@@ -371,11 +379,15 @@ def group_recursive(items, groups, depth = 0):
     return output
 
 def generate_uri(content):
+    site_dir = os.path.normpath(content.get('output_dir', '_site'))
     if content.get('dst_path'):
-        match = re.search(r'^_site/(.*?)/index.html$', content['dst_path'])
-        if ( match ):
-            folder = match[1]
-            return f"{content['base_path']}/{folder}/"
+        # match = re.search(f'^{site_dir}/(.*?)/index.html$', content['dst_path'])
+        # uri = re.sub(f'^{site_dir}{re.escape(os.sep)}', f'{content.get("base_path")}/', content['dst_path'])
+        uri = os.path.relpath(content['dst_path'], site_dir)
+        uri = uri.replace('\\', '/')
+        uri = urllib.parse.urljoin(content.get("base_path"), uri)
+        uri = re.sub('/index.html$', '', uri)
+        return uri
     return f"{content['base_path']}/{content['slug']}"
 
 def generate_html_id(text):
@@ -457,12 +469,12 @@ def make_list(files, dst, list_layout, item_layout, **params):
     #Python sort is stable and it's generally recommended to sort multiple times if needed
     if order_by := config.get("order_by"):
         if isinstance(order_by[0], str):
-            files.sort(key=lambda x: x.get(order_by[0]), reverse=order_by[1])
+            files.sort(key=lambda x: x.get(order_by[0]) or '', reverse=order_by[1])
         else:
             for attr, rev in reversed(order_by):
-                files.sort(key=lambda x: x.get(attr, 0), reverse=rev)
+                files.sort(key=lambda x: x.get(attr) or '', reverse=rev)
     else:
-        files.sort(key=lambda x: x.get("date"), reverse=True)
+        files.sort(key=lambda x: x.get("date") or '', reverse=True)
 
     if config.get("group_by") and "series" in config.get("group_by"):
         files.sort(key=sort_series, reverse=True)
@@ -471,20 +483,22 @@ def make_list(files, dst, list_layout, item_layout, **params):
         item_params = dict(params, **item)
         if not item_params.get('summary'):
             item_params['summary'] = truncate(item['content'])
-        item_content = item_layout.render(**item_params)
-        # item_params = render_metadata(item_params, template="summary")
-        item_params['content'] = item_content
+        if item_layout:
+            item_content = item_layout.render(**item_params)
+            # item_params = render_metadata(item_params, template="summary")
+            item_params['content'] = item_content
         items.append(item_params)
     
     if (config.get('group_by')) and (fandom_groups := config.get('fandom_groups')):
         items = group_fandoms(config, items)
 
     params['items'] = items
-    dst_path = render(dst, **params)
     output = list_layout.render(**params)
-
-    log('Rendering list => {} ...', dst_path)
-    fwrite(dst_path, output)
+    if (dst):
+        dst_path = render(dst, **params)
+        log('Rendering list => {} ...', dst_path)
+        fwrite(dst_path, output)
+    
     return output
 
 def sort_series(item):
@@ -501,7 +515,7 @@ def get_templates(template_env, theme_dir, folder):
     list_layout = template_env.get_template('list.html.j2')
     summary_layout = template_env.get_template('summary.html.j2')
     needed_templates = { 'single': True, 'summary': True, 'list': True}
-    folder_tree = folder.split('/')
+    folder_tree = folder.split(os.sep)
     theme_templates_dir = os.path.join(theme_dir, 'templates')
     while folder_tree:
         template_path = os.path.join(*folder_tree)
@@ -509,16 +523,13 @@ def get_templates(template_env, theme_dir, folder):
         if os.path.isdir(os.path.join(theme_templates_dir, template_path)):
             template_filenames = os.listdir(os.path.join(theme_templates_dir, template_path))
             if needed_templates['single'] and 'single.html.j2' in template_filenames:
-                single_layout = template_env.get_template( os.path.join(template_path, 'single.html.j2'))
-                print(single_layout)
+                single_layout = template_env.get_template( pathlib.posixpath.join(template_path, 'single.html.j2'))
                 needed_templates['single'] = False
             if needed_templates['summary'] and 'summary.html.j2' in template_filenames:
-                summary_layout = template_env.get_template( os.path.join(template_path, 'summary.html.j2'))
-                print(summary_layout)
+                summary_layout = template_env.get_template( pathlib.posixpath.join(template_path, 'summary.html.j2'))
                 needed_templates['summary'] = False
             if needed_templates['list'] and 'list.html.j2' in template_filenames:
-                list_layout = template_env.get_template( os.path.join(template_path, 'list.html.j2'))
-                print(list_layout)
+                list_layout = template_env.get_template( pathlib.posixpath.join(template_path, 'list.html.j2'))
                 needed_templates['list'] = False
         folder_tree.pop()
     return (single_layout, list_layout, summary_layout)
@@ -527,14 +538,46 @@ def main():
 
     # Default parameters.
     params = {
-        'base_path': '',
+        'base_path': '/',
         'render': 'yes',
-        'subtitle': 'Site Title',
+        "site_title": "My Fanfic Site",
+        'subtitle': 'Site Sub Title',
         'author': 'Author',
-        'site_url': 'http://localhost:8000',
         'theme': 'default',
         'current_year': datetime.datetime.now().year,
+        'pretty_uris': True,
+        "flatten_site_structure": False,
+        "include_folders_in_index": False,
+        "header_menu": [
+            {
+              "uri": "/works",
+              "text": "Works"
+            },
+            {
+              "uri": "/news",
+              "text": "News"
+            },
+            {
+              "uri": "/blog",
+              "text": "Blog"
+            }
+            ],
+        "footer_menu": [
+            {
+              "uri": "https://twitter.com/",
+              "text": "Twitter"
+            },
+            {
+              "uri": "https://tumblr.com/",
+              "text": "Tumblr"
+            },
+            {
+              "uri": "https://dreamwidth.org/",
+              "text": "Dreamwidth"
+            }
+        ],
         'config': {
+            "ao3_content_type": "ao3_work", 
             "//order_by": [["fandom", False],["date", True],["title", False]],
             "order_by": ["date", True],
             "group_by": [ "fandom", "subfandom", "series"],
@@ -543,7 +586,8 @@ def main():
             "media_type_default": "fanfiction",
             "excluded_tags": [],
             "merge_tags": [],
-            "fandom_groups": []
+            "fandom_groups": [],
+            "fandom_nav": True
          }
     }
 
@@ -554,25 +598,28 @@ def main():
     if os.path.isfile('params.json'):
         # We can't do a traditional merge because this dictionary contains another dictionary
         user_params = json.loads(fread('params.json'))
-        params.update(user_params)
-        # for key, val in  user_params.items():
-        #     if params.get(key) and isinstance(val, dict):
-        #         params[key].update(val)
-        #     else:
-        #         params[key] = val
-    else:
-        with open('params.json', 'w') as outfile:
-            json.dump(params, outfile, indent=2)
+        # params.update(user_params)
+        for key, val in  user_params.items():
+            if params.get(key) and isinstance(val, dict):
+                params[key].update(val)
+            else:
+                params[key] = val
+    # else:
+    with open('params.json', 'w') as outfile:
+        json.dump(params, outfile, indent=2)
 
     theme_dir = f"themes/{params.get('theme', 'default') }"
+    site_dir = params.get('output_dir', '_site')
 
     # Create a new _site directory from scratch.
-    if os.path.isdir('_site'):
-        shutil.rmtree('_site', ignore_errors=False)
-    shutil.copytree(f'{ theme_dir }/static', '_site')
+    if os.path.isdir(site_dir):
+        shutil.rmtree(site_dir, ignore_errors=False)
+    shutil.copytree(f'{ theme_dir }/static', site_dir)
 
     #Load Jinja2 templates
     template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(f'{ theme_dir }/templates'))
+    template_env.trim_blocks = True
+    template_env.lstrip_blocks = True
     template_env.filters["flattenbyattribute"] = flatten_by_attribute
     template_env.filters["grouprecursive"] = group_recursive
     template_env.filters["htmlid"] = generate_html_id
@@ -584,35 +631,64 @@ def main():
 
     # Create subfolder pages.
     theme_folder_templates = False
-    if os.listdir(os.path.join(theme_dir, 'templates')):
+    # if os.listdir(os.path.join(theme_dir, 'templates')):
+    if next(os.walk(os.path.join(theme_dir, 'templates')))[1]:
         theme_folder_templates = True
+
+    site_output = list() #Only used if site structure is flattened
 
     for (dirpath, dirnames, filenames) in os.walk('content', topdown=True):
         log('Reading ' + dirpath)
-        folder_params = params
+        dirnames.sort()
+        folder_params = copy.deepcopy(params)
         folder = os.path.relpath(dirpath, 'content')
+        folder_items = list()
+
         # Fetching metadata for the index page (also sets defaults for content in this folder)
         if os.path.isfile( os.path.join(dirpath, '_index.html') ):
             folder_params.update(read_content(os.path.join(dirpath, '_index.html'), **folder_params))
-        
+        elif os.path.isfile( os.path.join(dirpath, '_index.md') ):
+            folder_params.update(read_content(os.path.join(dirpath, '_index.md'), **folder_params))
+            
+        if params.get('include_folders_in_index'):
+            for dirname in dirnames:
+                if os.path.isfile( os.path.join(dirpath, dirname, '_index.html') ):
+                    folder_content = read_content( os.path.join(dirpath, dirname, '_index.html'), **params)
+                elif os.path.isfile( os.path.join(dirpath, dirname, '_index.md') ):
+                    folder_content = read_content( os.path.join(dirpath, dirname, '_index.md'), **params)
+                if folder_content:
+                    dst_path = os.path.join(site_dir, folder, dirname, 'index.html')          
+                    folder_content['uri'] = generate_uri( { 'base_path': params['base_path'], 'dst_path': dst_path })                    
+                    folder_items.append(folder_content)
+                
         # Fetch content templates from theme, starting in the current folder and walking back up the folder tree
         # This allows overriding templates with ones from closer in the file tree
         if theme_folder_templates: 
             single_layout, list_layout, summary_layout = get_templates(template_env, theme_dir, folder)
 
-        folder_items = make_pages(os.path.join(dirpath, '[!_]*.*'),
-                os.path.normpath(os.path.join('_site', folder, '{{ slug }}/index.html')),
-                single_layout, type=folder, **folder_params)
+        if params.get('pretty_uris'):
+            dst_path = os.path.normpath(os.path.join(site_dir, folder, '{{ slug }}/index.html'))
+        else:
+            dst_path = os.path.normpath(os.path.join(site_dir, folder, '{{ slug }}.html'))
+            
+        folder_items += make_pages(os.path.join(dirpath, '[!_]*.*'), dst_path, single_layout, **folder_params)
 
         if not os.path.isfile(os.path.join(dirpath, 'index.html')):
-            make_list(folder_items, os.path.normpath(os.path.join('_site', folder, 'index.html')),
-                list_layout, summary_layout, type=folder, **folder_params)
+            if params.get('flatten_site_structure'):
+                folder_params['content'] = make_list(folder_items, None, list_layout, summary_layout, standalone=True, **folder_params)
+                log('Adding ' + dirpath)
+                site_output.append(folder_params)
+            else:
+                make_list(folder_items, os.path.normpath(os.path.join(site_dir, folder, 'index.html')),
+                list_layout, summary_layout, **folder_params)
 
         # # Create RSS feeds.
         # make_list(blog_posts, '_site/blog/rss.xml',
         #           feed_xml, item_xml, type='blog', title='Blog', **params)
         # make_list(news_posts, '_site/news/rss.xml',
         #           feed_xml, item_xml, type='news', title='News', **params)
+    if params.get('flatten_site_structure'):
+        make_list(site_output, os.path.normpath(os.path.join(site_dir, 'index.html')), list_layout, item_layout = False, **params)
 
 # Test parameter to be set temporarily by unit tests.
 _test = None

@@ -4,7 +4,8 @@
     {% block head %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
-    <link rel="stylesheet" type="text/css" href="{{ base_path }}/css/style.css">
+    <base href="{{ base_path }}" />
+    <link rel="stylesheet" type="text/css" href="css/style.css">
     <title>{% block title %}{% endblock %} - {{ site_title }}</title>
     {% endblock %}
 </head>
@@ -15,7 +16,7 @@
 {% block navigation %}
 <section>
     <span class="home">
-        <a href="{{ base_path }}/">Home</a>
+        <a href="{{ base_path }}">Home</a>
     </span>
     <span class="links">
         {% if header_menu %}
@@ -29,7 +30,9 @@
 {% endblock %}
 </header>
 <main>
-{% block content %}{% endblock %}
+{% block content %}
+{{ content }}
+{% endblock %}
 </main>
 
 <footer>
