@@ -49,6 +49,27 @@ the [stylesheet](static/css/style.css) to suit your taste, enhance
 [makesite.py](makesite.py) if you need to, and develop your website/blog
 just the way you want it.
 
+To Do List
+------------
+
+This is a list of things that are required before the project will be ready for an alpha release.
+
+### Code: 
+* Create sample content, including fake AO3 works
+* Finalise default themes, including dark/light theme switcher
+* Test quick run shell script for OSX (Windows .cmd file is complete)
+* Before Beta: JSON file output for use in frontend scripts
+* Before Beta: RSS support
+* Before Beta: Updated automated tests
+
+### Documentation:
+* Complete the Get Started section
+* Document all configuration options and how to use them
+* Code walkthrough (like the original makesite.py)
+* Complete feature list
+* Document advanced usage, like single directory output
+
+Things not yet implemented that I would like to have by beta release:
 
 Get Started
 -----------
