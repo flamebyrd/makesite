@@ -175,7 +175,9 @@ def read_ao3_content(text, **params):
                     series_index = re.search(r'\d+', link.find_previous_sibling(string=True)) or 0
                     if series_index:
                         series_index = series_index.group()
-                    series.append({ "index": series_index, "title": link.get_text() })
+                    series_title = link.get_text().strip()
+                    if not series_title in config.get("exclude_series", []):
+                        series.append({ "index": series_index, "title": series_title })
                 tag_val = series
             elif "Additional Tags" == tag_name:
                 filtered_tags = []
