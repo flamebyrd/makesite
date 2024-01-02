@@ -18,11 +18,13 @@ Contents
 --------
 
 * [Introduction](#introduction)
+* [To Do List](#to-do-list)
 * [But Why?](#but-why)
 * [Get Started](#get-started)
 * [The Code](#the-code)
 * [Layout](#layout)
 * [Content](#content)
+* [Configuration](#configuration)
 * [FAQ](#faq)
 * [Credits](#credits)
 * [License](#license)
@@ -375,52 +377,30 @@ AO3 files are in the "config" option.
 Where an array (list) of options is requested, the list of lists will also 
 be surrounded by square brackets and comma-separated, and it will have a 
 trailing comma (because it is part of the larger "config" parameter. 
-```
-{
-  "base_path": "",
-  "render": "yes",
-  "site_title": "Flamebyrd's works",
-  "site_url": "http://localhost:8000",
-  "author": "Flamebyrd",
-  "theme": "default",
-  "config": {
-      "custom_formatters": [{"key": "series", "format": "Part {index} of 
-{title}", "wrapper": "<p>{}</p>"} ],
-      "order_by": [["fandom", false],["date", true],["title", false]],
-      "//order_by": ["date", true],
-      "group_by": [ "fandom", "subfandom", "series"],
-      "fandom_nav": true,
-      "media_tags": ["fanfiction", "fanart", "fanvid"],
-      "media_type_default": "fanfiction",
-      "excluded_tags": ["Dwarf/Elf Relationship(s)"],
-      "merge_tags": [ ["The King's Avatar", "全职高手 - 蝴蝶蓝 | Quánzhí 
-Gāoshǒu - Húdié Lán", "全职高手 | The King's Avatar (Live Action TV)"], 
-["Gimli/Legolas", "Legolas/Gimli", "Gimli/Legolas Greenleaf" ], ["The 
-Lord of the Rings", "The Lord of the Rings - J. R. R. Tolkien", "The 
-Lord of the Rings (Movies)", "The Lord of the Rings - All Media 
-Types"], ["Les Misérables (Musical)", "Les Misérables (2012)", "Les 
-Misérables - Schönberg/Boublil"], ["Stargate SG-1", "Stargate SG1"], 
-["The Hobbit", "The Hobbit - J. R. R. Tolkien", "The Hobbit - All 
-Media Types"] ],
-      "fandom_groups": [ 
-        [ "Marvel Cinematic Universe", "Avengers (2012)", "The Avengers 
-(2012)", "The Avengers (Marvel Movies)", "Agent Carter (TV)", 
-"Captain America (Movies)", "Incredible Hulk (2008)", "Iron Man 
-(Movies)" ], 
-        ["The Lord of the Rings / The Hobbit", "The Lord of the Rings - J. 
-R. R. Tolkien", "The Lord of the Rings", "The Lord of the Rings 
-(Movies)", "The Hobbit", "The Hobbit (Jackson Movies)"],
-        ["Stargate", "Stargate SG1", "Stargate SG-1", "Stargate Atlantis"]
-      ]
-  },
-  "header_menu": [{"uri": "/works", "text": "Works"}, {"uri": "/news", 
-"text": "News"}, {"uri": "/blog", "text": "Blog"}],
-  "footer_menu": [{"uri": "https://twitter.com/", "text": "Twitter"}, 
-{"uri": "https://tumblr.com/", "text": "Tumblr"}, {"uri": 
-"https://dreamwidth.org/", "text": "Dreamwidth"}]
-}
 
-```
+**base_path**: URL fragment be prepended to all links generated within the site. 
+e.g. if your site is located in the 'works' subfolder of your site, enter `"base_path": "/works/",`
+
+**render**: Perform text replacement inside the content files. Change this to anything else to disable this feature. Default is "yes".
+
+**site_title**: Used by the theme as the main title for the site
+
+**subtitle**: Used by the theme as the secondary title for the site.
+
+**author**: Default author for all pages/works in the site
+
+**theme**: Which theme (see Themes) to use. Default: "default"
+
+**pretty_uris**: Do the page URLs look like `https://example.com/works/Title of Work/` or `https://example.com/works/Title of Work.html`. Default: true
+
+**flatten_site_structure**: Output all content in a single directory. Subfolders in the 'content' folder will be used to group pages in the final, singular index.html file. See below for more details.
+
+**include_folders_in_index**: The link to each subfolders and any metadata in _index.html will be included in the index.html file for each folder. 
+
+**header_menu**: Used by the theme to generate a top menu for the site. Sample: "header_menu": [ { "uri": "/works", "text": "Works" },  { "uri": "/news", "text": "News" },  { "uri": "/blog", "text": "Blog" } ],
+
+**footer_menu**: Used by the theme to generate a footer menu for the site. Sample: "header_menu": [  { "uri": "https://twitter.com/", "text": "Twitter" }, { "uri": "https://tumblr.com/", "text": "Tumblr"}, { "uri": "https://dreamwidth.org/", "text": "Dreamwidth" } ],
+
 **Order by**: Define the sorting order of pages in a list. Each sort field 
 is given as an array with the sort field and a boolean (true/false) to 
 define whether it will be in descending order.
