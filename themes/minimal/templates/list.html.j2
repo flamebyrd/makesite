@@ -8,11 +8,11 @@
 
 {{ content }}
 
-{% if config.get("group_by") %}
+{% if display_options.get("group_by") %}
 
-{% set grouping = config.get("group_by") %}
+{% set grouping = display_options.get("group_by") %}
 
-{% if config.fandom_nav %}
+{% if display_options.fandom_nav %}
 {% set fandoms = items|flattenbyattribute('fandom')|map(attribute='fandom')|unique|sort %}
 {% if fandoms|length > 1 %}
 <nav role="navigation">

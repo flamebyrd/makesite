@@ -6,9 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
     <title>{% block title %}{% endblock %} - {{ site_title }}</title>
-    <base href="{{ base_path }}" />
-    <link rel="stylesheet" type="text/css" href="css/style.css">
-    <link rel="stylesheet" href="css/style-dark.css" media="none" type="text/css" id="dark-theme-stylesheet" />
+    <link rel="stylesheet" type="text/css" href="{{ base_path }}css/style.css">
+    <link rel="stylesheet" href="{{ base_path }}css/style-dark.css" media="none" type="text/css" id="dark-theme-stylesheet" />
     <style type="text/css" id="dark-theme-import">
     @import url('https://random.fangirling.net/pico/themes/fangirling/css/style-dark.css') screen and (prefers-color-scheme: dark); 
     </style>

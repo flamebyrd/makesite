@@ -144,7 +144,7 @@ def read_content(filename, **params):
 
 def read_ao3_content(text, **params):
     from bs4 import BeautifulSoup
-    config = params.get("config")
+    config = params.get("tag_processing")
     content = {}
     # soup = BeautifulSoup(text, 'html.parser')
     soup = BeautifulSoup(text, "lxml")
@@ -333,6 +333,7 @@ def flatten_by_attribute(value, attribute):
 
 def group_fandoms(config, works):
     fandom_groups = config.get('fandom_groups', [])
+    if not fandom_groups: return works
     grouped_works = []
     for work in works:
         if fandoms := work.get('fandom'):
@@ -463,7 +464,7 @@ def make_pages(src, dst, layout, **params):
 
 def make_list(files, dst, list_layout, item_layout, **params):
     """Generate list page for a blog."""
-    config = params.get("config")
+    config = params.get("display_options")
     items = []
 
     #Python sort is stable and it's generally recommended to sort multiple times if needed
@@ -489,15 +490,19 @@ def make_list(files, dst, list_layout, item_layout, **params):
             item_params['content'] = item_content
         items.append(item_params)
     
-    if (config.get('group_by')) and (fandom_groups := config.get('fandom_groups')):
-        items = group_fandoms(config, items)
+    if (config.get('group_by')):
+        items = group_fandoms(params.get("tag_processing"), items)
 
     params['items'] = items
-    output = list_layout.render(**params)
     if (dst):
         dst_path = render(dst, **params)
+        params["dst_path"] = dst_path
+        params["uri"] = generate_uri(params)
         log('Rendering list => {} ...', dst_path)
+        output = list_layout.render(**params)
         fwrite(dst_path, output)
+    else:
+        output = list_layout.render(**params)
     
     return output
 
@@ -576,18 +581,20 @@ def main():
               "text": "Dreamwidth"
             }
         ],
-        'config': {
-            "ao3_content_type": "ao3_work", 
+        "ao3_content_type": "ao3_work", 
+        'display_options': {
             "//order_by": [["fandom", False],["date", True],["title", False]],
             "order_by": ["date", True],
             "group_by": [ "fandom", "subfandom", "series"],
             "group_nav": True,
+            "fandom_nav": True
+         },
+        'tag_processing': {
             "media_tags": ["fanfiction", "fanart", "fanvid"],
             "media_type_default": "fanfiction",
             "excluded_tags": [],
             "merge_tags": [],
             "fandom_groups": [],
-            "fandom_nav": True
          }
     }
 
@@ -604,9 +611,9 @@ def main():
                 params[key].update(val)
             else:
                 params[key] = val
-    # else:
-    with open('params.json', 'w') as outfile:
-        json.dump(params, outfile, indent=2)
+    else:
+        with open('params.json', 'w') as outfile:
+            json.dump(params, outfile, indent=2)
 
     theme_dir = f"themes/{params.get('theme', 'default') }"
     site_dir = params.get('output_dir', '_site')

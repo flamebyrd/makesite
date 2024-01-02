@@ -1,6 +1,6 @@
 <!-- summary.html.j2 -->
 <article class="{{ content_type|htmlid }}">
-{% if config.ao3_content_type == content_type %}
+{% if ao3_content_type == content_type %}
 <p><strong><a href="{{ uri }}">{{ title }}</a></strong> ({{ fandom|join('/') }}, {{ category|join(', ') }}, {{ words|humanformat ~ ', ' if words }}{{ date }})</p>
 {% else %}
 <p><strong><a href="{{ uri }}">{{ title }}</a></strong></p>

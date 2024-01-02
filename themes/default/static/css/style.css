@@ -130,7 +130,8 @@ div .more {
 }
 
 .tags dt, .stats dt {
-    color: #3f3f3f
+    color: #3f3f3f;
+    font-style: italic;
 }
 
 .tags dt:not(:first-child)::before,

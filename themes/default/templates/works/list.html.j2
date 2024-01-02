@@ -2,11 +2,11 @@
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
 <div class="list">
-{% set grouping = config.get("group_by") %}
+{% set grouping = display_options.get("group_by") %}
 
 {% if grouping %}
 
-{% if config.fandom_nav %}
+{% if display_options.fandom_nav %}
 <nav role="navigation">
 <h2>All Fandoms</h2>
 <details>

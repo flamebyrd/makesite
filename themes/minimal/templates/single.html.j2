@@ -10,7 +10,7 @@
 <!-- single.html.j2 -->
 <article>
   <h1>{{ title }}</h1>
-  {% if config.ao3_content_type == content_type %}
+  {% if ao3_content_type == content_type %}
   <div class="byline">by {{ author|join(', ') }}</div>
   <div id="preface">
     <h2 class="toc-heading">Preface</h2>
