@@ -401,25 +401,50 @@ e.g. if your site is located in the 'works' subfolder of your site, enter `"base
 
 **footer_menu**: Used by the theme to generate a footer menu for the site. Sample: "header_menu": [  { "uri": "https://twitter.com/", "text": "Twitter" }, { "uri": "https://tumblr.com/", "text": "Tumblr"}, { "uri": "https://dreamwidth.org/", "text": "Dreamwidth" } ],
 
-**Order by**: Define the sorting order of pages in a list. Each sort field 
+**display_options**: { (The following tags are in the display_options subsection)
+
+**order_by**: Define the sorting order of pages in a list. Each sort field 
 is given as an array with the sort field and a boolean (true/false) to 
 define whether it will be in descending order.
 `"order_by": [["fandom", false],["date", true],["title", false]],`
 
-**Group by**: In a page list, items will be grouped by these fields in 
+**group_by**: In a page list, items will be grouped by these fields in 
 order. Please note that where a page has multiple values for a field, e.g. 
 if it is in multiple fandoms, the page metadata will be repeated for each 
 group. If you are using fandom groups (see below), include "subfandom" if 
 you want the secondary fandoms to be included in the list.
 `"group_by": [ "fandom", "subfandom", "series"],`
+
+**group_nav**: When enabled, will display a clickable menu of the group headings at the top of the list. `"group_nav": true,`
       
-**Fandom navigation** Used by the included themes to determine whether or 
+**fandom_nav** Used by the included themes to determine whether or 
 not to display a list of all fandoms at the top of the page. Please note 
 that if fandom groups are enabled this will only include the top level 
 (group) fandoms in the list.
 `"fandom_nav": true,`
 
-**Merge tags**: Option to merge fandoms into one, e.g. put all MCU fandoms 
+} (end of display_options)
+
+**tag_processing**: { (The following options are in the tag_processing subsection)
+
+**media_tags:** Identify which freeform tags you have that define the medium 
+of the work (fanfiction, fanart, fanvid, etc). You can then use this in 
+templates or enter 'media_type' in the group_by configuration to group by 
+this in the works list. Use the `media_type_default` option to define what 
+media type should be used when no tag is available on the work.
+How to use: 
+```
+"media_tags": ["fanfiction", "fanart", "fanvid"],
+"media_type_default": "fanfiction",
+```
+
+**excluded_tags**: Option to completely ignore certain tags. This tag will 
+not be available to use in templates or to filter or group works.
+How to enable: In params.json, under "Config", add your tags to the 
+"excluded_tags" parameter array.
+e.g. `"excluded_tags": [ "Angst", "Found Family" ],`
+
+**merge_tags**: Option to merge fandoms into one, e.g. put all MCU fandoms 
 in one bucket, merge LotR the book and LotR the movie into one fandom. This 
 will <em>replace</em> the tags in the list with one tag. You can also use 
 this to rename tags, for example if you wanted your works to be rated 
@@ -440,7 +465,7 @@ My "merge_tags" parameter will now look like this:
 America (Comics)"], [ "The King's Avatar", "全职高手 - 蝴蝶蓝 | Quánzhí 
 Gāoshǒu - Húdié Lán", "全职高手 | The King's Avatar (Live Action TV)"] ],`
 
-**Fandom Groups**: When grouping the works list by Fandom, this provides the 
+**fandom_groups**: When grouping the works list by Fandom, this provides the 
 option to group certain fandoms into one bucket.
 How to use: Each grouping should be an array. Put the top-level fandom as 
 the first item in the array, followed by the fandoms to be grouped 
@@ -449,25 +474,10 @@ underneath it. The top level fandom will now be the "fandom"
 Avengers (Marvel Movies)", "Agent Carter (TV)", "Captain America (Movies)" ] 
 ]`
 
-**Exclude tags**: Option to completely ignore certain tags. This tag will 
-not be available to use in templates or to filter or group works.
-How to enable: In params.json, under "Config", add your tags to the 
-"excluded_tags" parameter array.
-e.g. `"excluded_tags": [ "Angst", "Found Family" ],`
-
-**Ignore series:** When grouping by series or in work metadata, ignore this 
-series - useful e.g. if you have set up a "My MCU works" series
+**exclude_series:** When grouping by series or in work metadata, ignore this 
+series - useful e.g. if you have set up a "My MCU works" series.
  
-**Media tags:** Identify which freeform tags you have that define the medium 
-of the work (fanfiction, fanart, fanvid, etc). You can then use this in 
-templates or enter 'media_type' in the group_by configuration to group by 
-this in the works list. Use the `media_type_default` option to define what 
-media type should be used when no tag is available on the work.
-How to use: 
-```
-"media_tags": ["fanfiction", "fanart", "fanvid"],
-"media_type_default": "fanfiction",
-```
+
 
 
 FAQ
