@@ -14,4 +14,6 @@ python makesite.py
 
 popd
 
+python -m http.server -d _site
+
 pause
