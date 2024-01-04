@@ -3,7 +3,7 @@
 {% block content %}
 <h1>{{ title }}</h1>
 {% for item in items -%}
-<article class="{{ content_type|htmlid }}">
+<article class="{{ item.content_type|htmlid }}">
 {{ item.content }}
 </article>
 {% endfor %}
