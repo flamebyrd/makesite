@@ -21,7 +21,6 @@ Contents
 * [To Do List](#to-do-list)
 * [But Why?](#but-why)
 * [Get Started](#get-started)
-* [The Code](#the-code)
 * [Layout](#layout)
 * [Content](#content)
 * [Configuration](#configuration)
@@ -71,7 +70,6 @@ This is a list of things that are required before the project will be ready for 
 * Complete feature list
 * Document advanced usage, like single directory output
 
-Things not yet implemented that I would like to have by beta release:
 
 Get Started
 -----------
@@ -80,7 +78,7 @@ This section provides some quick steps to get you off the ground as
 quickly as possible.
 
  1. It is highly recommended to run this program out of a python virtual 
-environment to avoid the need to install additional packages.
+environment to avoid the need to install additional packages. Note: Unlike the original makesite.py, this version only supports Python 3.x.
 
     For a quick demo on your local system, just enter these commands:
  
@@ -91,26 +89,25 @@ environment to avoid the need to install additional packages.
     run:
     ```
     makesite.cmd
-    python -m http.server -d _site
     ```
     
     Then visit http://localhost:8000/.
-    
-   
- 2. 
 
-        python makesite.py
-        python -m http.server -d _site
+    **MacOS**: Run `makesite.sh` in the code directory. Note: This file assumes that Python has been installed on MacOS with the name `python3`, not `python`. 
 
-    Note: In some environments, you may need to use `python3` instead of
-    `python` to invoke Python 3.x.
+    e.g. From the directory above where you downloaded the makesite code, right click on the *makesite* directory, choose "services" and then "New Terminal at folder" from the menu.
+    In the terminal window, type:
+    ```
+    sh makesite.sh
+    ```
 
- 
+    Then visit http://localhost:8000/ 
 
-    Note: Unlike the original makesite.py, this version only supports Python 
-3.x
+ 2. Copy your content into the `content` directory. You can use the same commands as in step 1 to re-rerun the program and see what changes.
 
- 3. For an Internet-facing website, you would be hosting the static
+ 3. Make any configuration changes you want by modifying params.json (see below). Run the commands in step 1 again to see what changes.
+
+ 4. For an Internet-facing website, you would be hosting the static
     website/blog on a hosting service and/or with a web server such as
     Apache HTTP Server, Nginx, etc. You probably only need to generate
     the static files and know where the static files are and move them
@@ -119,177 +116,7 @@ environment to avoid the need to install additional packages.
     The `_site` directory contains the entire generated website. The
     content of this directory may be copied to your website hosting
     location.
-
-
-The Code
---------
-
-Now that you know how to generate the static website that comes with
-this project, it is time to see what [makesite.py](makesite.py) does.
-You probably don't really need to read the entire section. The source
-code is pretty self-explanatory but just in case, you need a detailed
-overview of what it does, here are the details:
-
- 1. The `main()` function is the starting point of website generation.
-    It calls the other functions necessary to get the website generation
-    done.
-
- 2. First it creates a fresh new `_site` directory from scratch. All
-    files in the [static directory](static) are copied to this
-    directory. Later the static website is generated and written to this
-    directory.
-
- 3. Then it creates a `params` dictionary with some default parameters.
-    This dictionary is passed around to other functions. These other
-    functions would pick values from this dictionary to populate
-    placeholders in the layout template files.
-
-    Let us take the `subtitle` parameter for example. It is set
-    to our example website's fictitious brand name: "Lorem Ipsum". We
-    want each page to include this brand name as a suffix in the title.
-    For example, the [about page](https://tmug.github.io/makesite-demo/about/)
-    has "About - Lorem Ipsum" in its title. Now take a look at the
-    [page layout template](layout/page.html) that is used as the layout
-    for all pages in the static website. This layout file uses the
-    `{{ subtitle }}` syntax to denote that it is a placeholder that
-    should be populated while rendering the template.
-
-    Another interesting thing to note is that a content file can
-    override these parameters by defining its own parameters in the
-    content header. For example, take a look at the content file for
-    the [home page](content/_index.html). In its content header, i.e.,
-    the HTML comments at the top with key-value pairs, it defines a new
-    parameter named `title` and overrides the `subtitle` parameter.
-
-    We will discuss the syntax for placeholders and content headers
-    later. It is quite simple.
-
- 4. It then loads all the layout templates. There are 6 of them in this
-    project.
-
-      - [layout/page.html](layout/page.html): It contains the base
-        template that applies to all pages. It begins with
-        `<!DOCTYPE html>` and `<html>`, and ends with `</html>`. The
-        `{{ content }}` placeholder in this template is replaced with
-        the actual content of the page. For example, for the about page,
-        the `{{ content }}` placeholder is replaced with the the entire
-        content from [content/about.html](content/about.html). This is
-        done with the `make_pages()` calls further down in the code.
-
-      - [layout/post.html](layout/post.html): It contains the template
-        for the blog posts. Note that it does not begin with `<!DOCTYPE
-        html>` and does not contain the `<html>` and `</html>` tags.
-        This is not a complete standalone template. This template
-        defines only a small portion of the blog post pages that are
-        specific to blog posts.  It contains the HTML code and the
-        placeholders to display the title, publication date, and author
-        of blog posts.
-
-        This template must be combined with the
-        [page layout template](layout/page.html) to create the final
-        standalone template. To do so, we replace the `{{ content }}`
-        placeholder in the [page layout template](layout/page.html) with
-        the HTML code in the [post layout template](layout/post.html) to
-        get a final standalone template. This is done with the
-        `render()` calls further down in the code.
-
-        The resulting standalone template still has a `{{ content }}`
-        placeholder from the [post layout template](layout/post.html)
-        template.  This `{{ content }}` placeholder is then replaced
-        with the actual content from the [blog posts](content/blog).
-
-      - [layout/list.html](layout/list.html): It contains the template
-        for the blog listing page, the page that lists all the posts in
-        a blog in reverse chronological order. This template does not do
-        much except provide a title at the top and an RSS link at the
-        bottom.  The `{{ content }}` placeholder is populated with the
-        list of blog posts in reverse chronological order.
-
-        Just like the [post layout template](layout/post.html) , this
-        template must be combined with the
-        [page layout template](layout/page.html) to arrive at the final
-        standalone template.
-
-      - [layout/item.html](layout/item.html): It contains the template
-        for each blog post item in the blog listing page. The
-        `make_list()` function renders each blog post item with this
-        template and inserts them into the
-        [list layout template](layout/list.html) to create the blog
-        listing page.
-
-      - [layout/feed.xml](layout/feed.xml): It contains the XML template
-        for RSS feeds. The `{{ content }}` placeholder is populated with
-        the list of feed items.
-
-      - [layout/item.xml](layout/item.xml): It contains the XML template for
-        each blog post item to be included in the RSS feed. The
-        `make_list()` function renders each blog post item with this
-        template and inserts them into the
-        [layout/feed.xml](layout/feed.xml) template to create the
-        complete RSS feed.
-
- 5. After loading all the layout templates, it makes a `render()` call
-    to combine the [post layout template](layout/post.html) with the
-    [page layout template](layout/page.html) to form the final
-    standalone post template.
-
-    Similarly, it combines the [list layout template](layout/list.html)
-    template with the [page layout template](layout/page.html) to form
-    the final list template.
-
- 6. Then it makes two `make_pages()` calls to render the home page and a
-    couple of other site pages: the [contact page](content/contact.html)
-    and the [about page](content/about.html).
-
- 7. Then it makes two more `make_pages()` calls to render two blogs: one
-    that is named simply [blog](content/blog) and another that is named
-    [news](content/news).
-
-    Note that the `make_pages()` call accepts three positional
-    arguments:
-
-      - Path to content source files provided as a glob pattern.
-      - Output path template as a string.
-      - Layout template code as a string.
-
-    These three positional arguments are then followed by keyword
-    arguments. These keyword arguments are used as template parameters
-    in the output path template and the layout template to replace the
-    placeholders with their corresponding values.
-
-    As described in point 2 above, a content file can override these
-    parameters in its content header.
-
- 8. Then it makes two `make_list()` calls to render the blog listing
-    pages for the two blogs. These calls are very similar to the
-    `make_pages()` calls. There are only two things that are different
-    about the `make_list()` calls:
-
-      - There is no point in reading the same blog posts again that were
-        read by `make_pages()`, so instead of passing the path to
-        content source files, we feed a chronologically reverse-sorted
-        index of blog posts returned by `make_pages()` to `make_list()`.
-      - There is an additional argument to pass the
-        [item layout template](layout/item.html) as a string.
-
- 9. Finally it makes two more `make_list()` calls to generate the RSS
-    feeds for the two blogs. There is nothing different about these
-    calls than the previous ones except that we use the feed XML
-    templates here to generate RSS feeds.
-
-To recap quickly, we create a `_site` directory to write the static site
-generated, define some default parameters, load all the layout
-templates, and then call `make_pages()` to render pages and blog posts
-with these templates, call `make_list()` to render blog listing pages
-and RSS feeds. That's all!
-
-Take a look at how the `make_pages()` and `make_list()` functions are
-implemented. They are very simple with less than 20 lines of code each.
-Once you are comfortable with this code, you can begin modifying it to
-add more blogs or reduce them. For example, you probably don't need a
-news blog, so you may delete the `make_pages()` and `make_list()` calls
-for `'news'` along with its content at [content/news](content/news).
-
+    
 
 Layout/Theme
 ------
@@ -478,38 +305,14 @@ Avengers (Marvel Movies)", "Agent Carter (TV)", "Captain America (Movies)" ]
 series - useful e.g. if you have set up a "My MCU works" series.
  
 
-
-
 FAQ
 ---
 
-Here are some frequently asked questions along with answers to them:
-
- 1. Can you add feature X to this project?
-
-    I do not have any plans to add new features to this project. It is
-    intended to be as minimal and as simple as reasonably possible. This
-    project is meant to be a quick-starter-kit for developers who want
-    to develop their own static site generators. Someone who needs more
-    features is free to fork this project repository and customize the
-    project as per their needs in their own fork.
-
- 2. Can you add support for Jinja templates, YAML front matter, etc.?
-
-    I will not add or accept support for Jinja templates, YAML front
-    matter, etc. in this project. However, you can do so in your fork.
-    The reasons are explained in the first point.
-
- 3. Do you accept any new features from the contributors?
-
-    I do not accept any new features in this project. The reasons are
-    explained in the first point.
+TO DO
 
  4. Do you accept bug fixes and improvements?
 
-    Yes, I accept bug fixes and minor improvements that do not increase
-    the scope and complexity of this project.
-
+    Yes, I accept bug fixes and minor improvements.
  5. Are there any contribution guidelines?
 
     Yes, please see [CONTRIBUTING.md](CONTRIBUTING.md).
