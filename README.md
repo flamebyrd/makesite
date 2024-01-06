@@ -32,9 +32,7 @@ Contents
 Introduction
 ------------
 
-This project borrows a lot of code and structure from the original 
-makesite.py. However, it differs from that project's stated objectives in a 
-few ways:
+This project borrows a lot of code and structure from the original makesite.py. However, it differs from that project's stated objectives in a few ways:
 * You don't need to read the source code to proceed but you probably will 
 need to read the documentation
 * This project is designed to both be used as a fork OR used as-is and still 
