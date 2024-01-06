@@ -2,8 +2,7 @@ makesite.py
 ===========
 
 Take full control of your personal fanfic archive generation by using this 
-custom static site generator in
-Python. That's right! We've reinvented the wheel!
+custom static site generator in Python. That's right! We've reinvented the wheel!
 
 [![View Source][SOURCE-BADGE]](makesite.py)
 [![View Demo][DEMO-BADGE]](https://tmug.github.io/makesite-demo)
