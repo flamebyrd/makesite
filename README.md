@@ -27,7 +27,6 @@ Contents
 * [License](#license)
 * [Support](#support)
 
-
 Introduction
 ------------
 
@@ -62,21 +61,20 @@ This is a list of things that are required before the project will be ready for 
 Get Started
 -----------
 
-### Install the *makesite* program
+### Install *makesite*
 1. Install [python](https://www.python.org/downloads/). Make sure to install version 3.0 or later. 
-2. Download the repository as a zip file by clicking on the "Code" button and selecting "Download ZIP". The "repository" is the folder containing the code. 
+2. Download this project's repository as a zip file by clicking on the "Code" button and selecting "Download ZIP". The "repository" is the folder containing the code. 
 3. Unzip the zip file you just downloaded. Open the new *makesite* folder this creates. 
 
-### Run the *makesite* script to create a local version of your archive 
-A "local" version is only visible on your computer.
+### Run the *makesite* script
+This updates the archive files, and while it's running the script will create a local version of your archive only visible on your computer.
 
 1. Run the *makesite* script from inside the *makesite* folder. The method depends on your operating system:
-   - windows: double-click on "makesite.cmd"
-   - mac:
-    - Run `makesite.sh` from a terminal window pointed to the *makesite* folder. 
-        - right click on the *makesite* directory, choose "services" and then "New Terminal at folder" from the menu. Alternatively, you can type "cd " and drag the folder to the terminal to copy the folder path.
+   - Windows: double-click on `makesite.cmd`.
+   - Mac: Run `makesite.sh` from a terminal window pointed to the *makesite* folder: 
+        - Right click on the *makesite* directory, choose "Services" and then "New Terminal at folder" from the menu. Alternatively, you can type "cd " and drag the folder to the terminal to copy the folder path.
         - In the terminal window, type: ```sh makesite.sh```. Wait until text stops scrolling down the screen. 
-2. Open http://localhost:8000/ in a web browser to see a local version of the website for your archive. This will remain visible on your computer while the *makesite* script is running. If you haven't added any content yet, you should see the default *makesite* home page. 
+2. Open http://localhost:8000/ in a web browser to see a temporary local preview version of your archive. This will remain visible on your computer while the *makesite* script is running. If you haven't added any content yet, you should see the default *makesite* home page. 
 3. When you're done, stop the *makesite* script:
     - windows: ??
     - mac: Type Control-C in the terminal window.  
@@ -85,7 +83,7 @@ A "local" version is only visible on your computer.
 
 The first time you run the *makesite* script it will create a *makesite/content* directory with some sample files. 
 
-After that, any time you run the *makesite* script, it will go through the files in the *makesite/content* directory and uses them to create the html files for your archive in the *makesite/_site* folder. 
+After that, any time you run the *makesite* script, it will go through the files in the *makesite/content* directory and use them to create the html files for your archive in the *makesite/_site* folder. 
 
 To change your archive, edit or add to the files in the *makesite/content* directory and run the *makesite* script again. You can check out the effect of your changes at http://localhost:8000/ while the script is running. 
 
