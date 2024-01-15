@@ -100,7 +100,9 @@ Whenever you want to update your archive, edit the files in the *makesite/conten
 Layout/Theme
 ------
 
-In this project, the layout template files are located in the [theme
+If you are happy with the current layout of the archive's pages, you can skip this section.
+ 
+The layout template files are located in the [theme
 directory](theme). Two themes are provided by default:
 * Default
 * Minimal
