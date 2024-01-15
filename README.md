@@ -1,8 +1,7 @@
 makesite.py
 ===========
 
-Take full control of your personal fanfic archive generation by using this 
-custom static site generator in Python. That's right! We've reinvented the wheel!
+This program takes a folder of fanfic in html form, and creates the html files for a personal fanfic archive with an index and working links between all the fic. 
 
 [![View Source][SOURCE-BADGE]](makesite.py)
 [![View Demo][DEMO-BADGE]](https://tmug.github.io/makesite-demo)
@@ -32,20 +31,12 @@ Contents
 Introduction
 ------------
 
-This project borrows a lot of code and structure from the original makesite.py. However, it differs from that project's stated objectives in a few ways:
-* You don't need to read the source code to proceed but you probably will 
-need to read the documentation
-* This project is designed to both be used as a fork OR used as-is and still 
-be updated by the user from this repository. Thus the content directory is 
-excluded from git, many configuration options are available, and theme 
-directories are designed to be copied before being modified.
+This project is based on the Python custom static site generator makesite.py, but is designed to be useable without a coding background.  
 
-You are [free](LICENSE.md) to copy, use, and modify this project for
-your website, so go ahead and fork this repository and make it
-your own project. Change the [layout](layout) if you wish to, improve
-the [stylesheet](static/css/style.css) to suit your taste, enhance
-[makesite.py](makesite.py) if you need to, and develop your website/blog
-just the way you want it.
+It can be used in two ways:
+
+* For non-coders: Run the code as a program, using the provided customisation tools. If you download an updated version of this project in the future, it won't override your fanfic or customisation.  
+* For coders who want extra customisation: Create your own new fork of the code. You are [free](LICENSE.md) to copy, use, and modify this project, specifically the [layout](layout) and [stylesheet](static/css/style.css).
 
 To Do List
 ------------
@@ -71,50 +62,43 @@ This is a list of things that are required before the project will be ready for 
 Get Started
 -----------
 
-This section provides some quick steps to get you off the ground as
-quickly as possible.
+### Install the *makesite* program
+1. Install [python](https://www.python.org/downloads/). Make sure to install version 3.0 or later. 
+2. Download the repository as a zip file by clicking on the "Code" button and selecting "Download ZIP". The "repository" is the folder containing the code. 
+3. Unzip the zip file you just downloaded. Open the new *makesite* folder this creates. 
 
- 1. It is highly recommended to run this program out of a python virtual 
-environment to avoid the need to install additional packages. Note: Unlike the original makesite.py, this version only supports Python 3.x.
+### Run the *makesite* script to create a local version of your archive 
+A "local" version is only visible on your computer.
 
-    For a quick demo on your local system, just enter these commands:
- 
-    **Windows**: Run `makesite.cmd` by double-clicking on it.
+1. Run the *makesite* script from inside the *makesite* folder. The method depends on your operating system:
+   - windows: double-click on "makesite.cmd"
+   - mac:
+    - Run `makesite.sh` from a terminal window pointed to the *makesite* folder. 
+        - right click on the *makesite* directory, choose "services" and then "New Terminal at folder" from the menu. Alternatively, you can type "cd " and drag the folder to the terminal to copy the folder path.
+        - In the terminal window, type: ```sh makesite.sh```. Wait until text stops scrolling down the screen. 
+2. Open http://localhost:8000/ in a web browser to see a local version of the website for your archive. This will remain visible on your computer while the *makesite* script is running. If you haven't added any content yet, you should see the default *makesite* home page. 
+3. When you're done, stop the *makesite* script:
+    - windows: ??
+    - mac: Type Control-C in the terminal window.  
+
+### Update the content of your archive
+
+The first time you run the *makesite* script it will create a *makesite/content* directory with some sample files. 
+
+After that, any time you run the *makesite* script, it will go through the files in the *makesite/content* directory and uses them to create the html files for your archive in the *makesite/_site* folder. 
+
+To change your archive, edit or add to the files in the *makesite/content* directory and run the *makesite* script again. You can check out the effect of your changes at http://localhost:8000/ while the script is running. 
+
+See below for documentation on how to make specific changes and add fanfic to your archive.
+
+### Upload your archive to the internet
+
+First, make sure you're happy with how your archive looks by running the *makesite* script and checking out the local copy of your archive at http://localhost:8000/. 
+
+The html files for your achive are in the *makesite/_site* folder. Upload the contents of this folder to a website host like neocities. 
+
+Whenever you want to update your archive, edit the files in the *makesite/content* directory and run the *makesite* script again. Then upload the updated contents of the *makesite/_site* folder to your web host, over-writing the older files with the updated versions. 
     
-    From a Command Window or Powershell, make sure the makesite directory is 
-    the current working directory, e.g. by typing `cd path\to\makesite`. Then
-    run:
-    ```
-    makesite.cmd
-    ```
-    
-    Then visit http://localhost:8000/.
-
-    **MacOS**: Run `makesite.sh` in the code directory. Note: This file assumes that Python has been installed on MacOS with the name `python3`, not `python`. 
-
-    e.g. From the directory above where you downloaded the makesite code, right click on the *makesite* directory, choose "services" and then "New Terminal at folder" from the menu.
-    In the terminal window, type:
-    ```
-    sh makesite.sh
-    ```
-
-    Then visit http://localhost:8000/ 
-
- 2. Copy your content into the `content` directory. You can use the same commands as in step 1 to re-rerun the program and see what changes.
-
- 3. Make any configuration changes you want by modifying params.json (see below). Run the commands in step 1 again to see what changes.
-
- 4. For an Internet-facing website, you would be hosting the static
-    website/blog on a hosting service and/or with a web server such as
-    Apache HTTP Server, Nginx, etc. You probably only need to generate
-    the static files and know where the static files are and move them
-    to your hosting location.
-
-    The `_site` directory contains the entire generated website. The
-    content of this directory may be copied to your website hosting
-    location.
-    
-
 Layout/Theme
 ------
 
