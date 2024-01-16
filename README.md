@@ -37,6 +37,8 @@ It can be used in two ways:
 * For non-coders: Run the code as a program, using the provided customisation tools. If you download an updated version of this project in the future, it won't override your fanfic or customisation.  
 * For coders who want extra customisation: Create your own new fork of the code. You are [free](LICENSE.md) to copy, use, and modify this project, specifically the [layout](layout) and [stylesheet](static/css/style.css).
 
+Some of the text of this README was taken from the README for [ao3downloader](https://github.com/nianeyna/ao3downloader). 
+
 To Do List
 ------------
 
@@ -89,31 +91,46 @@ To change your archive, edit or add to the files in the *makesite/content* direc
 
 See below for documentation on how to make specific changes and add fanfic to your archive.
 
+If you want to download a large number of works from the AO3, check out [ao3downloader](https://github.com/nianeyna/ao3downloader). 
+
 ### Upload your archive to the internet
 
 First, make sure you're happy with how your archive looks by running the *makesite* script and checking out the local copy of your archive at http://localhost:8000/. 
 
-The html files for your achive are in the *makesite/_site* folder. Upload the contents of this folder to a website host like neocities. 
+The html files for your achive are in the *makesite/_site* folder. Upload the contents of this folder to a website host like [neocities](https://neocities.org/). 
 
 Whenever you want to update your archive, edit the files in the *makesite/content* directory and run the *makesite* script again. Then upload the updated contents of the *makesite/_site* folder to your web host, over-writing the older files with the updated versions. 
     
-Layout/Theme
+Theme
 ------
 
-If you are happy with the current layout of the archive's pages, you can skip this section.
+If you are happy with the appearance of the archive, you can skip this section.
  
-The layout template files are located in the [theme
-directory](theme). Two themes are provided by default:
-* Default
-* Minimal
+The appearance and layout of the archive are controlled by the theme. The theme is defined by files within a subfolder of the [theme directory](theme).   
 
-If you wish to modify the theme, I strongly recommend you make a copy of 
-the theme you wish to modify. Just rename the folder to something descriptive
-and change ["theme"]: "default" in params.json to use your new folder name.
+Two themes are provided by default:
+* modular: a customisable theme which applies different settings to different parts of the archive.
+* minimal: A simple theme which applies the same settings to all pages. 
 
-## Templates 
+To change the theme, change the line ```["theme"]: "modular"``` in *params.json*, eg if you wish to use the modular theme, change the line to ```["theme"]: "minimal"```.
 
-Templates are made using Jinja2. There are 4 main templates used:
+## Creating your own theme
+
+First, create a copy of whichever default theme is closest to what you want, and rename the folder to something descriptive, like *my_theme*. Then change the relevant line of *params.json* eg to ```["theme"]: "my_theme"```.
+
+Each theme folder has two relevant subfolders: 
+  - css: CSS files defining the colours and fonts.
+  - templates: Jinja2 files defining the layout, structure and label text. 
+
+### CSS
+
+The two files in the css folder are style.css, which defines the light theme, and style-dark.css, which defines the dark theme. 
+
+If you're not familiar with CSS, there are many tutorials online. 
+
+### Templates 
+
+Templates are made using Jinja2, which is a templating language combining python and html. There are 4 main templates used:
 * **base.html.j2**: The layout for the header and footer for all pages
 * **single.html.j2**: The layout for the content portion of a single page
 * **list.html.j2**: The layout for a list of content, i.e. an index.html page
