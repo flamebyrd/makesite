@@ -1,8 +1,7 @@
 makesite.py
 ===========
 
-Take full control of your personal fanfic archive generation by using this 
-custom static site generator in Python. That's right! We've reinvented the wheel!
+This program takes a folder of fanfic in html form, and creates the html files for a personal fanfic archive with an index and working links between all the fic. 
 
 [![View Source][SOURCE-BADGE]](makesite.py)
 [![View Demo][DEMO-BADGE]](https://tmug.github.io/makesite-demo)
@@ -28,24 +27,15 @@ Contents
 * [License](#license)
 * [Support](#support)
 
-
 Introduction
 ------------
 
-This project borrows a lot of code and structure from the original makesite.py. However, it differs from that project's stated objectives in a few ways:
-* You don't need to read the source code to proceed but you probably will 
-need to read the documentation
-* This project is designed to both be used as a fork OR used as-is and still 
-be updated by the user from this repository. Thus the content directory is 
-excluded from git, many configuration options are available, and theme 
-directories are designed to be copied before being modified.
+This project is based on the Python custom static site generator [makesite.py](https://github.com/sunainapai/makesite), but is designed to be useable without a coding background.  
 
-You are [free](LICENSE.md) to copy, use, and modify this project for
-your website, so go ahead and fork this repository and make it
-your own project. Change the [layout](layout) if you wish to, improve
-the [stylesheet](static/css/style.css) to suit your taste, enhance
-[makesite.py](makesite.py) if you need to, and develop your website/blog
-just the way you want it.
+It can be used in two ways:
+
+* For non-coders: Run the code as a program, using the provided customisation tools. If you download an updated version of this project in the future, it won't override your fanfic or customisation.  
+* For coders who want extra customisation: Create your own new fork of the code. You are [free](LICENSE.md) to copy, use, and modify this project, specifically the [layout](layout) and [stylesheet](static/css/style.css).
 
 To Do List
 ------------
@@ -71,65 +61,82 @@ This is a list of things that are required before the project will be ready for 
 Get Started
 -----------
 
-This section provides some quick steps to get you off the ground as
-quickly as possible.
+### Install *makesite*
+1. Install [python](https://www.python.org/downloads/). Make sure to install version 3.0 or later. 
+2. Download this project's repository as a zip file by clicking on the "Code" button and selecting "Download ZIP". The "repository" is the folder containing the code. 
+3. Unzip the zip file you just downloaded. Open the new *makesite* folder this creates. 
 
- 1. It is highly recommended to run this program out of a python virtual 
-environment to avoid the need to install additional packages. Note: Unlike the original makesite.py, this version only supports Python 3.x.
+### Run the *makesite* script
+This updates the archive files, and while it's running the script will create a local version of your archive only visible on your computer.
 
-    For a quick demo on your local system, just enter these commands:
- 
-    **Windows**: Run `makesite.cmd` by double-clicking on it.
+1. Run the *makesite* script from inside the *makesite* folder. The method depends on your operating system:
+   - Windows: double-click on `makesite.cmd`.
+   - Mac: Run `makesite.sh` from a terminal window pointed to the *makesite* folder: 
+        - Right click on the *makesite* directory, choose "Services" and then "New Terminal at folder" from the menu. Alternatively, you can type "cd " and drag the folder to the terminal to copy the folder path.
+        - In the terminal window, type: ```sh makesite.sh```. Wait until text stops scrolling down the screen. 
+2. Open http://localhost:8000/ in a web browser to see a temporary local preview version of your archive. This will remain visible on your computer while the *makesite* script is running. If you haven't added any content yet, you should see the default *makesite* home page. 
+3. When you're done, stop the *makesite* script:
+    - windows: ??
+    - mac: Type Control-C in the terminal window.  
+
+### Update the content of your archive
+
+The first time you run the *makesite* script it will create a *content* directory with some sample files. 
+
+After that, any time you run the *makesite* script, it will go through the files in the *content* directory and use them to create the html files for your archive in the *_site* folder. 
+
+To change your archive, edit or add to the files in the *content* directory and run the *makesite* script again. You can check out the effect of your changes at http://localhost:8000/ while the script is running. 
+
+#### Adding fanworks from the AO3
+
+Any files in the *fanworks* folder will be added to the fanworks section of your archive. These files should be in HTML or markdown format. 
+
+To download a fanwork from [the AO3](https://archiveofourown.org/) in the right format, click on the *Download* button and then select *HTML*.    
+
+If you want to download a large number of works from the AO3, check out [ao3downloader](https://github.com/nianeyna/ao3downloader). 
+
+To change how the archive looks or is structured, edit the parameters or theme. See below for further documentation.
+
+### Upload your archive to the internet
+
+First, make sure you're happy with how your archive looks by running the *makesite* script and checking out the local copy of your archive at http://localhost:8000/. 
+
+The html files for your achive are in the *_site* folder. Upload the contents of this folder to a website host like [neocities](https://neocities.org/). 
+
+Whenever you want to update your archive, edit the files in the *content* directory and run the *makesite* script again. Then upload the updated contents of the *_site* folder to your web host, over-writing the older files with the updated versions. 
     
-    From a Command Window or Powershell, make sure the makesite directory is 
-    the current working directory, e.g. by typing `cd path\to\makesite`. Then
-    run:
-    ```
-    makesite.cmd
-    ```
-    
-    Then visit http://localhost:8000/.
-
-    **MacOS**: Run `makesite.sh` in the code directory. Note: This file assumes that Python has been installed on MacOS with the name `python3`, not `python`. 
-
-    e.g. From the directory above where you downloaded the makesite code, right click on the *makesite* directory, choose "services" and then "New Terminal at folder" from the menu.
-    In the terminal window, type:
-    ```
-    sh makesite.sh
-    ```
-
-    Then visit http://localhost:8000/ 
-
- 2. Copy your content into the `content` directory. You can use the same commands as in step 1 to re-rerun the program and see what changes.
-
- 3. Make any configuration changes you want by modifying params.json (see below). Run the commands in step 1 again to see what changes.
-
- 4. For an Internet-facing website, you would be hosting the static
-    website/blog on a hosting service and/or with a web server such as
-    Apache HTTP Server, Nginx, etc. You probably only need to generate
-    the static files and know where the static files are and move them
-    to your hosting location.
-
-    The `_site` directory contains the entire generated website. The
-    content of this directory may be copied to your website hosting
-    location.
-    
-
-Layout/Theme
+Theme
 ------
 
-In this project, the layout template files are located in the [theme
-directory](theme). Two themes are provided by default:
-* Default
-* Minimal
+If you are happy with the appearance of the archive, you can skip this section.
+ 
+The appearance and layout of the archive are controlled by the theme. The theme is defined by files within a subfolder of the [theme directory](theme).   
 
-If you wish to modify the theme, I strongly recommend you make a copy of 
-the theme you wish to modify. Just rename the folder to something descriptive
-and change ["theme"]: "default" in params.json to use your new folder name.
+Two themes are provided by default:
+* modular: a customisable theme which applies different settings to different parts of the archive.
+* minimal: A simple theme which applies the same settings to all pages. 
 
-## Templates 
+To change the theme, change the line ```["theme"]: "modular"``` in *params.json*, eg if you wish to use the modular theme, change the line to ```["theme"]: "minimal"```.
 
-Templates are made using Jinja2. There are 4 main templates used:
+### Creating your own theme
+
+First, create a copy of whichever default theme is closest to what you want, and rename the folder to something descriptive, like *my_theme*. Then change the relevant line of *params.json* eg to ```["theme"]: "my_theme"```.
+
+Each theme folder has two relevant subfolders: 
+  - **css**: CSS files defining the colours and fonts.
+  - **templates**: Jinja2 files defining the layout, structure and label text. 
+
+#### CSS
+
+The two files in the *css* folder are *style.css*, which defines the light theme, and *style-dark.css*, which defines the dark theme. 
+
+If you're not familiar with CSS, there are many tutorials online. 
+
+#### Templates 
+
+Templates are made using Jinja2, which is a templating language combining python and html. 
+
+There are 4 main templates used:
 * **base.html.j2**: The layout for the header and footer for all pages
 * **single.html.j2**: The layout for the content portion of a single page
 * **list.html.j2**: The layout for a list of content, i.e. an index.html page
@@ -143,64 +150,61 @@ folder inside the templates directory.
 Content
 -------
 
-In this project, the content files are located in the [content
-directory](content). Most of the content files are written in HTML.
-However, the content files for the blog named [blog](content/blog) are
-written in Markdown.
+The *makesite* script processes everything in the *content* folder to create your archive. The files in *content* should be in HTML or markdown format. The files are organised by folder, which tells the *makesite* script how to format each file, and how to link to it from other pages. 
 
-The notion of headers in the content files is supported by
-[makesite.py](makesite.py). Each content file may begin with one or more
-consecutive HTML comments that contain headers. Each header has the
-following syntax:
+You can use as many or as few folders as you like, but the defaults are *fanworks*, *blog* and *news*.
+
+There are three types of file that the *makesite* script knows how to process:
+  - simple markdown or HTML. These will be displayed as-is, with no extra HTML added. 
+  - HTML files in the specific format used by HTML downloads from [the AO3](https://archiveofourown.org/). The script will add extra HTML to this and other archive pages, like links to and from the relevant Fandom page.
+  - HTML or markdown pages with headers in the right format. The script will add extra HTML to this and other archive pages in pre-defined ways.
+
+### AO3 Fanworks
+
+To download a fanwork from [the AO3](https://archiveofourown.org/) in the right format, click on the *Download* button and then select *HTML*. Save this downloaded HTML file to your *fanworks* folder. 
+
+If you want to download a large number of works from the AO3, check out [ao3downloader](https://github.com/nianeyna/ao3downloader). 
+
+### Other files
+
+If you're not familiar with HTML or markdown, they're related languages used to create webpages, with many tutorials online. 
+
+Beyond simple HTML and markdown, the *makesite* script can read information from headers at the start of a file in this format:
 
     <!-- <key>: <value> -->
 
 Any whitespace before, after, and around the `<!--`, `<key>`, `:`,
-`<value>`, and `-->` tokens are ignored. Here are some example headers:
+`<value>`, and `-->` is ignored. Here are some example headers:
 
     <!-- title: About -->
     <!-- subtitle: Lorem Ipsum -->
     <!-- author: Admin -->
 
-It looks for the headers at the top of every content file. As soon as
-some non-header text is encountered, the rest of the content from that
-point is not checked for headers.
+The script looks for the headers at the top of every content file. As soon as
+any non-header text is encountered, the script stops checking for headers any further.
 
-By default, placeholders in content files are not populated during
-rendering. This behaviour is chosen so that you can write content freely
-without having to worry about makesite interfering with the content,
-i.e., you can write something like `{{ title }}` in the content and
-makesite would leave it intact by default.
+If you want to refer to this information later in the file, you can use placeholders like `{{ title }}` and then tell the script to render them by setting the parameter 'render' to `yes` in one of two ways: 
 
-However if you do want to populate the placeholders in a content file,
-you need to specify a parameter named `render` with value of `yes`. This
-can be done in two ways:
-
-  - Specify the parameter in a header in the content file in the
-    following manner:
+  - a header in the content file:
 
         <!-- render: yes -->
 
-  - Specify the parameter as a keyword argument in `make_pages` call.
+  - as a keyword argument in `make_pages` call.
     For example:
 
         blog_posts = make_pages('content/blog/*.md',
                                 '_site/blog/{{ slug }}/index.html',
                                 post_layout, blog='blog', render='yes',
                                 **params)
-
 Configuration
 -------------
 
-Configuration is handled in the params.json file (this is what the original 
-makesite.py called it). This file will be created from defaults the first 
-time the program is run.
+You can change the configuration of the *makesite* script by editing the *params.json* file. 
 
-There are a number of options available to you. The options for processing 
-AO3 files are in the "config" option.
+The options for processing AO3 files are in the "config" option.
 Where an array (list) of options is requested, the list of lists will also 
 be surrounded by square brackets and comma-separated, and it will have a 
-trailing comma (because it is part of the larger "config" parameter. 
+trailing comma because it is part of the larger "config" parameter. 
 
 **base_path**: URL fragment be prepended to all links generated within the site. 
 e.g. if your site is located in the 'works' subfolder of your site, enter `"base_path": "/works/",`
@@ -338,20 +342,21 @@ TO DO
     Anything similar to the above notice or something to this effect is
     sufficient.
 
-
 Credits
 -------
 
 Thanks to:
 
-  - [Susam Pal](https://github.com/susam) for the initial documentation
-    and the initial unit tests.
-  - [Keith Gaughan](https://github.com/kgaughan) for an improved
-    single-pass rendering of templates.
+  - [nianeyna](https://github.com/nianeyna) for some text in this README, which is taken from [ao3downloader](https://github.com/nianeyna/ao3downloader/blob/main/README.md).
+  - [Sunaina Pai](https://github.com/sunainapai) for the original [makesite.py](https://github.com/sunainapai/makesite) 
+  - [sqbr](https://github.com/sqbr) for helping with the documentation
 
 
 License
 -------
+
+This software is a derivative of the original makesite.py.
+The license text of the original makesite.py is included below.
 
 This is free and open source software. You can use, copy, modify,
 merge, publish, distribute, sublicense, and/or sell copies of it,
@@ -360,9 +365,8 @@ under the terms of the [MIT License](LICENSE.md).
 This software is provided "AS IS", WITHOUT WARRANTY OF ANY KIND,
 express or implied. See the [MIT License](LICENSE.md) for details.
 
-
 Support
 -------
 
 To report bugs, suggest improvements, or ask questions, please visit
-<https://github.com/sunainapai/makesite/issues>.
+<https://github.com/flamebyrd/makesite/issues>.
