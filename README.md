@@ -37,27 +37,6 @@ It can be used in two ways:
 * For non-coders: Run the code as a program, using the provided customisation tools. If you download an updated version of this project in the future, it won't override your fanfic or customisation.  
 * For coders who want extra customisation: Create your own new fork of the code. You are [free](LICENSE.md) to copy, use, and modify this project, specifically the [layout](layout) and [stylesheet](static/css/style.css).
 
-To Do List
-------------
-
-This is a list of things that are required before the project will be ready for an alpha release.
-
-### Code: 
-* Create sample content, including fake AO3 works
-* Finalise default themes, including dark/light theme switcher
-* Test quick run shell script for OSX (Windows .cmd file is complete)
-* Before Beta: JSON file output for use in frontend scripts
-* Before Beta: RSS support
-* Before Beta: Updated automated tests
-
-### Documentation:
-* Complete the Get Started section
-* Document all configuration options and how to use them
-* Code walkthrough (like the original makesite.py)
-* Complete feature list
-* Document advanced usage, like single directory output
-
-
 Get Started
 -----------
 
@@ -76,7 +55,7 @@ This updates the archive files, and while it's running the script will create a 
         - In the terminal window, type: ```sh makesite.sh```. Wait until text stops scrolling down the screen. 
 2. Open http://localhost:8000/ in a web browser to see a temporary local preview version of your archive. This will remain visible on your computer while the *makesite* script is running. If you haven't added any content yet, you should see the default *makesite* home page. 
 3. When you're done, stop the *makesite* script:
-    - windows: ??
+    - windows: Type Control-C in the terminal window.
     - mac: Type Control-C in the terminal window.  
 
 ### Update the content of your archive
@@ -89,13 +68,13 @@ To change your archive, edit or add to the files in the *content* directory and 
 
 #### Adding fanworks from the AO3
 
-Any files in the *fanworks* folder will be added to the fanworks section of your archive. These files should be in HTML or markdown format. 
+Any files in *content/* folder will be added to the index file (index.html). These files should be in HTML or markdown format. 
 
 To download a fanwork from [the AO3](https://archiveofourown.org/) in the right format, click on the *Download* button and then select *HTML*.    
 
 If you want to download a large number of works from the AO3, check out [ao3downloader](https://github.com/nianeyna/ao3downloader). 
 
-To change how the archive looks or is structured, edit the parameters or theme. See below for further documentation.
+To change how the index looks or is structured (e.g. change what metadata is displayed or how it is sorted), edit the parameters or theme. See below for further documentation.
 
 ### Upload your archive to the internet
 
@@ -112,11 +91,12 @@ If you are happy with the appearance of the archive, you can skip this section.
  
 The appearance and layout of the archive are controlled by the theme. The theme is defined by files within a subfolder of the [theme directory](theme).   
 
-Two themes are provided by default:
-* modular: a customisable theme which applies different settings to different parts of the archive.
-* minimal: A simple theme which applies the same settings to all pages. 
+Three themes are provided by default:
+* default: A theme which displays the same metadata as AO3 does in the index. It applies the same settings to all pages.
+* minimal: A simple theme which displays limited metadata and no work summaries. It applies the same settings to all pages. 
+* modular: A customisable theme which applies different themes to different parts of the archive.
 
-To change the theme, change the line ```["theme"]: "modular"``` in *params.json*, eg if you wish to use the modular theme, change the line to ```["theme"]: "minimal"```.
+To change the theme, change the line ```["theme"]: "default"``` in *params.json*, eg if you wish to use the modular theme, change the line to ```["theme"]: "modular"```.
 
 ### Creating your own theme
 
@@ -150,14 +130,14 @@ folder inside the templates directory.
 Content
 -------
 
-The *makesite* script processes everything in the *content* folder to create your archive. The files in *content* should be in HTML or markdown format. The files are organised by folder, which tells the *makesite* script how to format each file, and how to link to it from other pages. 
+The *makesite* script processes everything in the *content* folder to create your archive. The files in *content* should be in HTML or markdown format. The files can be organised by folder. The theme tells the *makesite* script how to format each file, and how to link to it from other pages. 
 
-You can use as many or as few folders as you like, but the defaults are *fanworks*, *blog* and *news*.
+You can use as many or as few folders as you like. For example, you could create folders for *fanworks*, *blog* and *news*, and maintain a blog and include an announcement when you add new works. Or you could create a separate folder for each fandom or other categorisation (e.g. anime, movies, comics). Or, you can have a single folder, which generates a single index file sorted and grouped as you wish.
 
 There are three types of file that the *makesite* script knows how to process:
   - simple markdown or HTML. These will be displayed as-is, with no extra HTML added. 
   - HTML files in the specific format used by HTML downloads from [the AO3](https://archiveofourown.org/). The script will add extra HTML to this and other archive pages, like links to and from the relevant Fandom page.
-  - HTML or markdown pages with headers in the right format. The script will add extra HTML to this and other archive pages in pre-defined ways.
+  - HTML or markdown pages with headers in the right format (see below). The script will add extra HTML to this and other archive pages in pre-defined ways.
 
 ### AO3 Fanworks
 
@@ -183,19 +163,6 @@ Any whitespace before, after, and around the `<!--`, `<key>`, `:`,
 The script looks for the headers at the top of every content file. As soon as
 any non-header text is encountered, the script stops checking for headers any further.
 
-If you want to refer to this information later in the file, you can use placeholders like `{{ title }}` and then tell the script to render them by setting the parameter 'render' to `yes` in one of two ways: 
-
-  - a header in the content file:
-
-        <!-- render: yes -->
-
-  - as a keyword argument in `make_pages` call.
-    For example:
-
-        blog_posts = make_pages('content/blog/*.md',
-                                '_site/blog/{{ slug }}/index.html',
-                                post_layout, blog='blog', render='yes',
-                                **params)
 Configuration
 -------------
 
@@ -309,38 +276,7 @@ series - useful e.g. if you have set up a "My MCU works" series.
 FAQ
 ---
 
-TO DO
-
- 4. Do you accept bug fixes and improvements?
-
-    Yes, I accept bug fixes and minor improvements.
- 5. Are there any contribution guidelines?
-
-    Yes, please see [CONTRIBUTING.md](CONTRIBUTING.md).
-
- 6. How do I add my own copyright notice to the source code without
-    violating the terms of license while customizing this project in my
-    own fork?
-
-    This project is released under the terms of the MIT license. One of
-    the terms of the license is that the original copyright notice and
-    the license text must be preserved. However, at the same time, when
-    you edit and customize this project in your own fork, you hold the
-    copyright to your changes. To fulfill both conditions, please add
-    your own copyright notice above the original copyright notice and
-    clarify that your software is a derivative of the original.
-
-    Here is an example of such a notice where a person named J. Doe
-    wants to reserve all rights to their changes:
-
-        # Copyright (c) 2018-2019 J. Doe
-        # All rights reserved
-
-        # This software is a derivative of the original makesite.py.
-        # The license text of the original makesite.py is included below.
-
-    Anything similar to the above notice or something to this effect is
-    sufficient.
+Coming soon!
 
 Credits
 -------
