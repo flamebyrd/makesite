@@ -646,6 +646,9 @@ def main():
 
     site_output = list() #Only used if site structure is flattened
 
+    if not os.path.isdir('content'):
+        shutil.copytree(f'sample-content', 'content')
+
     for (dirpath, dirnames, filenames) in os.walk('content', topdown=True):
         log('Reading ' + dirpath)
         dirnames.sort()
