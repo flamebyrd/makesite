@@ -16,7 +16,6 @@ Contents
 --------
 
 * [Introduction](#introduction)
-* [To Do List](#to-do-list)
 * [But Why?](#but-why)
 * [Get Started](#get-started)
 * [Layout](#layout)
