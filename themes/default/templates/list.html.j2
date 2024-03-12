@@ -1,10 +1,52 @@
 {% extends "base.html.j2" %}
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
-<h1>{{ title }}</h1>
-{% for item in items -%}
-<article class="{{ item.content_type|htmlid }}">
-{{ item.content }}
+<div class="list">
+{% set grouping = display_options.get("group_by") %}
+
+{% if grouping %}
+
+{% if display_options.fandom_nav %}
+<nav role="navigation">
+<h2>All Fandoms</h2>
+<details>
+<summary>View fandoms list.</summary>
+<ul>
+{% for fandom in items|flattenbyattribute('fandom')|map(attribute='fandom')|unique|sort -%}
+<li><a href="#{{ fandom|htmlid }}">{{ fandom }}</a></li>
+{% endfor %}
+</ul>
+</details>
+</nav>
+{% endif %}
+{% set ns = namespace( h_depth = 2, loop_depth = -1, group_name = grouping[0] ) %}
+
+{% for group, works, depth in items|grouprecursive(grouping) -%}
+    {% set ns.group_name = grouping[depth] -%}
+    {% if group -%} {# We only want to insert a heading if this group has a value #}
+    {% if ns.loop_depth != depth -%} {# If we're working with another group type we need to update the heading depth #}
+        {% set ns.loop_depth = depth -%}
+        {% set ns.h_depth = 2 if depth == 0 else ns.h_depth+1 -%}
+    {% endif -%}
+    <h{{ ns.h_depth }} class="{{ ns.group_name }}" id="{{ group|htmlid }}">{{ group }}</h{{ ns.h_depth }}>
+    {% endif -%}
+    {% if works -%}
+        {% set h_depth = ns.h_depth+1 -%}
+        {% for work in works -%}
+        <article class="summary">
+        <h{{ h_depth }} class="title"><a href="{{ work.uri }}/">{{ work.title }}</a></h{{ h_depth }}>
+        {{ work.content }}</article>
+        {% endfor -%}
+    {% endif -%}
+{% endfor %}
+
+{% else %} {# If no grouping is set #}
+{% for work in items %}
+<article class="summary">
+<h2 class="title"><a href="{{ work.uri }}</a></h2>
+{{ work.content }}
 </article>
 {% endfor %}
+{% endif %}
+</div>
 {% endblock %}

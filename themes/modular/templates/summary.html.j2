@@ -1,0 +1,10 @@
+<h2><a href="{{ uri }}">{{ title }}</a></h2>
+{% if content_type == 'post' %}
+<p class="meta">Published on {{ date }} by <b>{{ author }}</b></p>
+{% endif %}
+<p class="summary">
+{{ summary }}&nbsp;<a class="more" href="{{ uri }}/">...</a>
+</p>
+<div>
+<a class="more" href="{{ uri }}">Read More</a>
+</div>

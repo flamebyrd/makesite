@@ -1,17 +1,11 @@
 <!DOCTYPE html>
-<!-- base.html.j2 -->
 <html>
 <head>
     {% block head %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
-    <title>{% block title %}{% endblock %} - {{ site_title }}</title>
     <link rel="stylesheet" type="text/css" href="{{ base_path }}css/style.css">
-    <link rel="stylesheet" href="{{ base_path }}css/style-dark.css" media="none" type="text/css" id="dark-theme-stylesheet" />
-    <style type="text/css" id="dark-theme-import">
-    @import url('{{ base_path }}css/style-dark.css') screen and (prefers-color-scheme: dark); 
-    </style>
-    <script type="text/javascript" src="{{ base_path }}js/theme-toggle.js"></script>
+    <title>{% block title %}{% endblock %} - {{ site_title }}</title>
     {% endblock %}
 </head>
 
@@ -31,17 +25,9 @@
         {% endif %}
     </span>
 </section>
-<div class="user-theme-toggle" style="">
-  <button id="theme-toggle-button" class="theme-toggle-button">
-    <span class="theme-toggle-button-text theme-toggle-button-text-dark">Toggle Dark Mode</span>
-    <span class="theme-toggle-button-text theme-toggle-button-text-light">Toggle Light Mode</span>
-    <span class="theme-toggle-button-icon" aria-hidden="true"></span>
-  </button>
-</div>
 </nav>
 {% endblock %}
 </header>
-
 <main>
 {% block content %}
 {{ content }}

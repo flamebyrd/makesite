@@ -1,0 +1,10 @@
+{% extends "base.html.j2" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+{% for item in items -%}
+<article class="{{ item.content_type|htmlid }}">
+{{ item.content }}
+</article>
+{% endfor %}
+{% endblock %}

@@ -9,3 +9,4 @@ venv
 content*
 params.json
 .*
+*.bak
