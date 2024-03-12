@@ -246,7 +246,9 @@ def read_ao3_content(text, **params):
             current_chapter["end_notes"] = chapter_end_notes_label.find_next('blockquote', class_="userstuff").decode_contents(formatter='minimal')
         else:
             continue
-    content["chapters_content"] = list(chapters)
+    if current_chapter: #Make sure last chapter is added
+        chapters.append(current_chapter)
+    content["chapters_content"] = list(chapters) 
     soup.decompose()
 
     return content, text
@@ -490,7 +492,8 @@ def make_list(files, dst, list_layout, item_layout, **params):
             item_content = item_layout.render(**item_params)
             # item_params = render_metadata(item_params, template="summary")
             item_params['content'] = item_content
-        items.append(item_params)
+        if not item_params.get('exclude_from_index', False): 
+            items.append(item_params)
     
     if (config.get('group_by')):
         items = group_fandoms(params.get("tag_processing"), items)
@@ -549,7 +552,7 @@ def main():
         'render': 'yes',
         "site_title": "My Fanfic Site",
         'subtitle': 'Site Sub Title',
-        'author': 'Author',
+        'author': 'Sample Author',
         'theme': 'default',
         'current_year': datetime.datetime.now().year,
         'pretty_uris': True,
@@ -557,16 +560,12 @@ def main():
         "include_folders_in_index": False,
         "header_menu": [
             {
-              "uri": "/works",
-              "text": "Works"
+              "uri": "/about",
+              "text": "About"
             },
             {
-              "uri": "/news",
-              "text": "News"
-            },
-            {
-              "uri": "/blog",
-              "text": "Blog"
+              "uri": "/contact",
+              "text": "Contact"
             }
             ],
         "footer_menu": [
@@ -647,7 +646,7 @@ def main():
     site_output = list() #Only used if site structure is flattened
 
     if not os.path.isdir('content'):
-        shutil.copytree(f'sample-content', 'content')
+        shutil.copytree(f'sample-content/default', 'content')
 
     for (dirpath, dirnames, filenames) in os.walk('content', topdown=True):
         log('Reading ' + dirpath)

@@ -162,15 +162,29 @@ Any whitespace before, after, and around the `<!--`, `<key>`, `:`,
 The script looks for the headers at the top of every content file. As soon as
 any non-header text is encountered, the script stops checking for headers any further.
 
+#### Sample Headers
+
+**title**: The title of the page.
+
+**subtitle**: The secondary title of the page.
+
+**author**: The author of the page.
+
+**date**: The date the page was published. Should be in YYYY-MM-DD format.
+
+**exclude_from_index**: Ignore this work when generating lists for the index file. Useful for pages like About and Content when they are included in the top menu or footer.
+
+
 Configuration
 -------------
 
 You can change the configuration of the *makesite* script by editing the *params.json* file. 
 
-The options for processing AO3 files are in the "config" option.
 Where an array (list) of options is requested, the list of lists will also 
 be surrounded by square brackets and comma-separated, and it will have a 
 trailing comma because it is part of the larger "config" parameter. 
+
+## params.json
 
 **base_path**: URL fragment be prepended to all links generated within the site. 
 e.g. if your site is located in the 'works' subfolder of your site, enter `"base_path": "/works/",`
@@ -270,7 +284,7 @@ Avengers (Marvel Movies)", "Agent Carter (TV)", "Captain America (Movies)" ]
 
 **exclude_series:** When grouping by series or in work metadata, ignore this 
 series - useful e.g. if you have set up a "My MCU works" series.
- 
+
 
 FAQ
 ---
