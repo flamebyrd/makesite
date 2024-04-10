@@ -74,7 +74,7 @@ def read_headers(text):
     for match in re.finditer(r'\s*<!--\s*(.+?)\s*:\s*(.+?)\s*-->\s*|.+', text):
         if not match.group(1):
             break
-        yield match.group(1), match.group(2)
+        yield match.group(1), match.group(2), match.end()
 
 
 def rfc_2822_format(date_str):
@@ -111,7 +111,7 @@ def read_content(filename, **params):
     else:
         # Read headers.
         end = 0
-        for key, val in read_headers(text):
+        for key, val, end in read_headers(text):
             content[key] = val
 
         # Separate content from headers.
