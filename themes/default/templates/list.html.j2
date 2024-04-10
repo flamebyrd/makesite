@@ -1,6 +1,8 @@
 {% extends "base.html.j2" %}
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
+<h1>{{ title }}</h1>
+{{ content }}
 <div class="list">
 {% set grouping = display_options.get("group_by") %}
 
