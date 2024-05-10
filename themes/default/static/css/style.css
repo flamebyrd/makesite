@@ -15,6 +15,7 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 0;
     line-height: 1.2em;
     margin-top: 1em;
+    color: #000;
 }
 
 a:link, a:visited {
@@ -48,11 +49,11 @@ header nav a {
     margin-right: 1em;
 }
 
-header nav a:link, nav a:visited {
+header nav a:link, header nav a:visited {
     color: #cccccc;
 }
 
-header nav a:hover, nav a:active {
+header nav a:hover, header nav a:active {
     color: #ffffff;
     text-decoration: none;
 }
@@ -134,8 +135,8 @@ div .more {
 }
 
 .list .tags dt, .list .stats dt {
-    color: #757575;
     font-style: italic;
+    opacity: 0.85;
 }
 
 .list .tags dt:not(:first-child)::before,
@@ -151,7 +152,7 @@ div .more {
 }
 
 .single .tags dt, .single .stats dt {
-    color: #757575;
+    opacity: 0.85;
     font-weight: bold;
     flex-basis: 30%;
 }
@@ -161,6 +162,10 @@ div .more {
     margin: 0;
 }
 
+.series ul {
+    list-style: none;
+    padding: 0;
+  }
 
 
 /* RSS */

@@ -1,15 +1,19 @@
 /* General */
 body {
   background-color: #222;
-	color: #aaa;
+  color: #dee2e6
 }
 
 a:link, a:visited {
-    color: #1e8ad6;
+    color: #8fcffd;
 }
 
 a:hover, a:active {
-    color: #3ba0e6;
+    color: #42b0fe;
+}
+
+h1, h2, h3, h4, h5, h6 { 
+    color: #fff;
 }
 
 /* Navigation panel */
@@ -45,8 +49,9 @@ article h1 a:hover, article h1 a:active,
     color: #888888;
 }
 
-p.meta {
-    color: #888888;
+.list .tags dt, .list .stats dt {
+    color: inherit;
+    opacity: 0.8;
 }
 
 /* RSS */

@@ -1,7 +1,7 @@
 /* General */
 body {
-  background-color: #222;
-	color: #aaa;
+  background-color: #121212;
+	color: #fff;
 }
 
 a:link, a:visited {
@@ -47,6 +47,11 @@ article h1 a:hover, article h1 a:active,
 
 p.meta {
     color: #888888;
+}
+
+.list .tags dt, .list .stats dt {
+    color: #fff;
+    opacity: 0.95;
 }
 
 /* RSS */
