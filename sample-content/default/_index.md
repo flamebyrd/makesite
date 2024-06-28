@@ -3,11 +3,13 @@
 
 This site is generated from the content files in the /content folder. To remove this message, delete the _index.md file. To remove all the content, delete all the files! If you ever need to retrieve it, you can find it in the /sample-content folder.
 
-This site demonstrates the following features:
+The default site (using the default theme) demonstrates the following features:
 * Top and Bottom menus (you can edit these in params.json)
 * About and Contact pages that are only accessible in the top menu (you can set this in the header of their content files)
 * Works grouped by fandom and series, sorted by date
 * Fandom list at the top of the page
+
+To change to a more minimal style, without the menus, edit params.json and change `"theme": "default",` to `"theme": "minimal",`. To modify the theme to suit your needs, check out the Theme section in README.md.
 
 ## Quick Start
 

@@ -7,38 +7,12 @@
     <meta name="viewport" content="width=device-width">
     <title>{% block title %}{% endblock %} - {{ site_title }}</title>
     <link rel="stylesheet" type="text/css" href="{{ base_path }}css/style.css">
-    <link rel="stylesheet" href="{{ base_path }}css/style-dark.css" media="none" type="text/css" id="dark-theme-stylesheet" />
-    <style type="text/css" id="dark-theme-import">
-    @import url('{{ base_path }}css/style-dark.css') screen and (prefers-color-scheme: dark); 
-    </style>
-    <script type="text/javascript" src="{{ base_path }}js/theme-toggle.js"></script>
     {% endblock %}
 </head>
 
 <body id="{{ slug }}">
 <header>
-<nav>
 {% block navigation %}
-<section>
-    <span class="home">
-        <a href="{{ base_path }}">Home</a>
-    </span>
-    <span class="links">
-        {% if header_menu %}
-        {% for link in header_menu %}
-        <a href="{{ link.uri }}">{{ link.text }}</a>
-        {% endfor %}
-        {% endif %}
-    </span>
-</section>
-<div class="user-theme-toggle" style="">
-  <button id="theme-toggle-button" class="theme-toggle-button">
-    <span class="theme-toggle-button-text theme-toggle-button-text-dark">Toggle Dark Mode</span>
-    <span class="theme-toggle-button-text theme-toggle-button-text-light">Toggle Light Mode</span>
-    <span class="theme-toggle-button-icon" aria-hidden="true"></span>
-  </button>
-</div>
-</nav>
 {% endblock %}
 </header>
 
@@ -50,17 +24,7 @@
 
 <footer>
   {% block footer %}
-<section>
-<p>&copy; {{ current_year }}</p>
-{% if footer_menu %}
-<p>
-{% for link in footer_menu %}
-<a href="{{ link.uri }}">{{ link.text }}</a>
-{% endfor %}
-</p>
-{% endif %}
-</section>
-{% endblock %}
+  {% endblock %}
 </footer>
 
 </body>

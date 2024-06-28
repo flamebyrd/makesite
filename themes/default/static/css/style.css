@@ -31,12 +31,18 @@ a:hover, a:active {
 
 /* Single column layout */
 nav section, header section, main, footer section {
-    max-width: 40em;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 0 0.5em;
+    margin-right: 1em;
+    margin-left: 1em;
 }
 
+@media screen and (min-width: 1020px) {
+    nav section, header section, main, footer section {
+        max-width: 40em;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 0 0.5em;
+    }
+}
 
 /* Navigation panel */
 header nav {
@@ -58,7 +64,7 @@ header nav a:hover, header nav a:active {
     text-decoration: none;
 }
 
-@media screen and (min-width: 600px) {
+@media screen and (min-width: 1020px) {
     header nav .links {
         float: right;
     }

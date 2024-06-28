@@ -18,7 +18,7 @@ Contents
 * [Introduction](#introduction)
 * [But Why?](#but-why)
 * [Get Started](#get-started)
-* [Layout](#layout)
+* [Theme](#theme)
 * [Content](#content)
 * [Configuration](#configuration)
 * [FAQ](#faq)

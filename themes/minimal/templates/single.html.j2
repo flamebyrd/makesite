@@ -8,12 +8,9 @@
 {% endblock %}
 {% block content %}
 <!-- single.html.j2 -->
-<article>
-  <h1>{{ title }}</h1>
+<article class="single">
   {% if ao3_content_type == content_type %}
-  <div class="byline">by {{ author|join(', ') }}</div>
   <div id="preface">
-    <h2 class="toc-heading">Preface</h2>
 
     {{ top_message }}
 
@@ -45,6 +42,8 @@
           {% if chapters %}Chapters: {{ chapters }} {% endif %}
         </dd>
       </dl>
+        <h1>{{ title }}</h1>
+        <div class="byline">by {{ author|join(', ') }}</div>
         {% if summary -%}
         <p>Summary</p>
         <blockquote class="userstuff">{{ summary }}</blockquote>
@@ -61,6 +60,8 @@
         {% endif %}
     </div>
   </div>
+  {% else %}
+    <h1>{{ title }}</h1>
   {% endif %}
 
 {% if chapters_content %}
@@ -98,6 +99,10 @@
 </div>
 {% endif %}
 </article>
+{% endblock %}
+
+{% block footer %}
+<a href="{{ base_path }}">← Back to {{ site_title }}</a>
 {% endblock %}
 
 {% macro meta(label, value) -%}
