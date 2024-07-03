@@ -1,7 +1,8 @@
 <!-- summary.html.j2 -->
 <article class="{{ content_type|htmlid }}">
 {% if ao3_content_type == content_type %}
-<p><strong><a href="{{ uri }}">{{ title }}</a></strong> ({{ fandom|join('/') }}, {{ category|join(', ') }}, {{ words|humanformat ~ ', ' if words }}{{ date }})</p>
+{% set work_meta = [ fandom|join('/') if fandom is not string and fandom is sequence else fandom, category|join(', ') if category else none, words|humanformat if words else none, date] %}
+<p><strong><a href="{{ uri }}">{{ title }}</a></strong> ({{ work_meta|reject("none")|join(', ') }})</p>
 {% else %}
 <p><strong><a href="{{ uri }}">{{ title }}</a></strong></p>
 {% endif %}

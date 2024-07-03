@@ -20,8 +20,10 @@
 <details>
 <summary>View fandoms list.</summary>
 <ul>
-{% for fandom in fandoms-%}
+{% for fandom in fandoms -%}
+{% if fandom %}
 <li><a href="#{{ fandom|htmlid }}">{{ fandom }}</a></li>
+{% endif %}
 {% endfor %}
 </ul>
 </details>
