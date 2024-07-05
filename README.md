@@ -33,7 +33,9 @@ This project is based on the Python custom static site generator [makesite.py](h
 It can be used in two ways:
 
 * For non-coders: Run the code as a program, using the provided customisation tools. If you download an updated version of this project in the future, it won't override your fanfic or customisation.  
-* For coders who want extra customisation: Create your own new fork of the code. You are [free](LICENSE.md) to copy, use, and modify this project, specifically the [layout](layout) and [stylesheet](static/css/style.css).
+* For HTML/CSS/Javascript coders who want extra customisation: You can create your own theme to completely customise the generated HTML and associated CSS/JS files.
+* For Python coders who want a base to build their own site generator: Create your own new fork of the code. You are [free](LICENSE.md) to copy, use, and modify this project.
+
 
 Get Started
 -----------
@@ -81,13 +83,17 @@ First, make sure you're happy with how your archive looks by running the *makesi
 The html files for your achive are in the *_site* folder. Upload the contents of this folder to a website host like [neocities](https://neocities.org/). 
 
 Whenever you want to update your archive, edit the files in the *content* directory and run the *makesite* script again. Then upload the updated contents of the *_site* folder to your web host, over-writing the older files with the updated versions. 
-    
+
+### Update the makesite code
+
+If you ever need to install/update a new version of the code, make sure you backup the directory first. Then, download a new zip file of the code and unzip it. You can copy everything from the unzipped directory on top of the existing directory as long as you have not made any modifications to the Theme files directly.
+
 Theme
 ------
 
 If you are happy with the appearance of the archive, you can skip this section.
  
-The appearance and layout of the archive are controlled by the theme. The theme is defined by files within a subfolder of the [theme directory](theme).   
+The appearance and layout of the archive are controlled by the theme. The theme is defined by files within a subfolder of the [theme directory](themes).   
 
 Three themes are provided by default:
 * default: A theme which displays the same metadata as AO3 does in the index, with top/bottom navigation. It applies the same settings to all pages. It includes a light/dark theme switcher.
