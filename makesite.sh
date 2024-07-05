@@ -2,15 +2,22 @@
 
 VENV="venv"
 
+if which python3 > /dev/null 2>&1; then
+    PYTHON="python3"
+    PIP="pip3"
+else
+    PYTHON="python"
+    PIP="pip"
+fi
+
 if [ -d "$VENV" ]; then
     # Activate the existing virtual environment
     source venv/bin/activate
 else
-    python3 -m venv venv || python -m venv venv
+    $PYTHON -m venv venv
     source venv/bin/activate
-    python3 -m pip install --upgrade pip || python3 -m pip install --upgrade pip
-    pip3 install -r requirements.txt || pip install -r requirements.txt
+    $PYTHON -m pip install --upgrade pip
+    $PIP install -r requirements.txt
 fi
-python3 makesite.py || python makesite.py
-python3 -m http.server -d _site || python -m http.server -d _site
-
+$PYTHON makesite.py
+$PYTHON -u -m http.server -d _site;
