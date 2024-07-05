@@ -1,0 +1,75 @@
+{
+  "base_path": "/",
+  "render": "yes",
+  "site_title": "My Fanfic Site",
+  "subtitle": "Site Sub Title",
+  "author": "Author",
+  "theme": "minimal",
+  "current_year": 2024,
+  "pretty_uris": true,
+  "flatten_site_structure": false,
+  "include_folders_in_index": false,
+  "header_menu": [
+    {
+      "uri": "/about",
+      "text": "About"
+    },
+    {
+      "uri": "/contact",
+      "text": "Contact"
+    }
+  ],
+  "footer_menu": [
+    {
+      "uri": "https://twitter.com/",
+      "text": "Twitter"
+    },
+    {
+      "uri": "https://tumblr.com/",
+      "text": "Tumblr"
+    },
+    {
+      "uri": "https://dreamwidth.org/",
+      "text": "Dreamwidth"
+    }
+  ],
+  "ao3_content_type": "ao3_work",
+  "display_options": {
+    "//order_by": [
+      [
+        "fandom",
+        false
+      ],
+      [
+        "date",
+        true
+      ],
+      [
+        "title",
+        false
+      ]
+    ],
+    "order_by": [
+      "date",
+      true
+    ],
+    "group_by": [
+      "fandom",
+      "subfandom",
+      "series"
+    ],
+    "group_nav": true,
+    "fandom_nav": true
+  },
+  "tag_processing": {
+    "media_tags": [
+      "fanfiction",
+      "fanart",
+      "fanvid"
+    ],
+    "media_type_default": "fanfiction",
+    "excluded_tags": [],
+    "merge_tags": [],
+    "fandom_groups": []
+  }
+}

@@ -37,10 +37,15 @@ nav section, header section, main, footer section {
 
 @media screen and (min-width: 1020px) {
     nav section, header section, main, footer section {
-        max-width: 40em;
+        max-width: 60em;
         margin-left: auto;
         margin-right: auto;
         padding: 0 0.5em;
+    }
+}
+@media screen and (min-width: 1440px) {
+    nav section, header section, main, footer section {
+        max-width: 72em;
     }
 }
 
@@ -63,13 +68,6 @@ header nav a:hover, header nav a:active {
     color: #ffffff;
     text-decoration: none;
 }
-
-@media screen and (min-width: 1020px) {
-    header nav .links {
-        float: right;
-    }
-}
-
 
 /* Footer */
 footer {

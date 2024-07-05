@@ -28,7 +28,13 @@
         {% set ns.loop_depth = depth -%}
         {% set ns.h_depth = 2 if depth == 0 else ns.h_depth+1 -%}
     {% endif -%}
-    <h{{ ns.h_depth }} class="{{ ns.group_name }}" id="{{ group|htmlid }}">{{ group }}</h{{ ns.h_depth }}>
+    <h{{ ns.h_depth }} class="{{ ns.group_name }}" id="{{ group|htmlid }}">
+    {% if ns.group_name == 'series' and display_options.series_prefix -%} 
+      {{ display_options.series_prefix + group }}
+      {% else -%} 
+      {{ group }}
+      {% endif -%} 
+    </h{{ ns.h_depth }}>
     {% endif -%}
     {% if works -%}
         {% set h_depth = ns.h_depth+1 -%}

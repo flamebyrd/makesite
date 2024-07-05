@@ -588,7 +588,8 @@ def main():
             "order_by": ["date", True],
             "group_by": [ "fandom", "subfandom", "series"],
             "group_nav": True,
-            "fandom_nav": True
+            "fandom_nav": True,
+            "series_prefix": "Series: "
          },
         'tag_processing': {
             "media_tags": ["fanfiction", "fanart", "fanvid"],
