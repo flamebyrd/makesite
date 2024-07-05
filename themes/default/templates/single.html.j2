@@ -2,16 +2,11 @@
 {% block title %}{{ title }}{% endblock %}
 {% block head %}
     {{ super() }}
-    <style type="text/css">
-        .important { color: #336699; }
-    </style>
 {% endblock %}
 {% block content %}
 <article class="single">
   {% if ao3_content_type == content_type %}
   <div id="preface">
-    <h2 class="toc-heading">Preface</h2>
-
     {{ top_message }}
 
     <div class="meta">

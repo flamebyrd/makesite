@@ -15,9 +15,9 @@ To change to a more minimal style, without the menus, edit params.json and chang
 
 1. Delete all the files in the /content folder (you can find this information again in /sample-content if you need it)
 2. Add your own files in /content. You can use markdown, plain HTML, or AO3 downloaded HTML files.
-3. Edit your site's title and your name in params.json.
+3. Edit your site's title and your name in params.json, along with the links in footer_menu
 4. Run makesite.cmd or makesite.sh, e.g. by double clicking it or by typing in a command/terminal window. If you already have a window running makesite open, type ctrl-c to stop it first.
-5. Visit the website it tells you to see your new site.
+5. Visit the website it tells you to see your new site (if you're reading this in a web browser, just refresh the page!).
 
 More information can be found in README.md, including how to create your own theme and change the settings.
 

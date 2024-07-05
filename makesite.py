@@ -558,30 +558,6 @@ def main():
         'pretty_uris': True,
         "flatten_site_structure": False,
         "include_folders_in_index": False,
-        "header_menu": [
-            {
-              "uri": "/about",
-              "text": "About"
-            },
-            {
-              "uri": "/contact",
-              "text": "Contact"
-            }
-            ],
-        "footer_menu": [
-            {
-              "uri": "https://twitter.com/",
-              "text": "Twitter"
-            },
-            {
-              "uri": "https://tumblr.com/",
-              "text": "Tumblr"
-            },
-            {
-              "uri": "https://dreamwidth.org/",
-              "text": "Dreamwidth"
-            }
-        ],
         "ao3_content_type": "ao3_work", 
         'display_options': {
             "//order_by": [["fandom", False],["date", True],["title", False]],
@@ -614,6 +590,31 @@ def main():
             else:
                 params[key] = val
     else:
+        # Adding some additional default parameters for new projects
+        params["header_menu"] = [
+            {
+              "uri": "/about",
+              "text": "About"
+            },
+            {
+              "uri": "/contact",
+              "text": "Contact"
+            }
+        ]
+        params["footer_menu"] = [
+            {
+              "uri": "https://twitter.com/",
+              "text": "Twitter"
+            },
+            {
+              "uri": "https://tumblr.com/",
+              "text": "Tumblr"
+            },
+            {
+              "uri": "https://dreamwidth.org/",
+              "text": "Dreamwidth"
+            }
+        ]
         with open('params.json', 'w') as outfile:
             json.dump(params, outfile, indent=2)
 

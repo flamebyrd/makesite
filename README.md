@@ -16,7 +16,6 @@ Contents
 --------
 
 * [Introduction](#introduction)
-* [But Why?](#but-why)
 * [Get Started](#get-started)
 * [Theme](#theme)
 * [Content](#content)
@@ -29,7 +28,7 @@ Contents
 Introduction
 ------------
 
-This project is based on the Python custom static site generator [makesite.py](https://github.com/sunainapai/makesite), but is designed to be useable without a coding background.  
+This project is based on the Python custom static site generator [makesite.py](https://github.com/sunainapai/makesite), but is designed to be useable without a coding background. It will turn a folder of HTML files, Markdown files, or HTML work files downloaded from the Archive of Our Own into a website with custom styling and an automatic list of all pages in the site, including metadata.
 
 It can be used in two ways:
 
@@ -91,23 +90,25 @@ If you are happy with the appearance of the archive, you can skip this section.
 The appearance and layout of the archive are controlled by the theme. The theme is defined by files within a subfolder of the [theme directory](theme).   
 
 Three themes are provided by default:
-* default: A theme which displays the same metadata as AO3 does in the index. It applies the same settings to all pages.
-* minimal: A simple theme which displays limited metadata and no work summaries. It applies the same settings to all pages. 
+* default: A theme which displays the same metadata as AO3 does in the index, with top/bottom navigation. It applies the same settings to all pages. It includes a light/dark theme switcher.
+* minimal: A simple theme which displays limited metadata and no work summaries, with no top navigation and simplified bottom navigatino. It applies the same settings to all pages. 
 * modular: A customisable theme which applies different themes to different parts of the archive.
 
-To change the theme, change the line ```["theme"]: "default"``` in *params.json*, eg if you wish to use the modular theme, change the line to ```["theme"]: "modular"```.
+To change the theme, change the line ```["theme"]: "default"``` in *params.json*, e.g. if you wish to use the minimal theme, change the line to ```["theme"]: "minimal"```.
 
 ### Creating your own theme
 
 First, create a copy of whichever default theme is closest to what you want, and rename the folder to something descriptive, like *my_theme*. Then change the relevant line of *params.json* eg to ```["theme"]: "my_theme"```.
 
 Each theme folder has two relevant subfolders: 
-  - **css**: CSS files defining the colours and fonts.
+  - **static**: This folder is copied to the /static directory of the site.
+      - **css**: CSS files defining the colours and fonts.
+      - **js**: Javascript files for front-end features.
   - **templates**: Jinja2 files defining the layout, structure and label text. 
 
-#### CSS
+#### Styles
 
-The two files in the *css* folder are *style.css*, which defines the light theme, and *style-dark.css*, which defines the dark theme. 
+The two files in the *static/css* folder are *style.css*, which defines the light theme, and *style-dark.css*, which defines the dark theme. 
 
 If you're not familiar with CSS, there are many tutorials online. 
 
@@ -124,7 +125,7 @@ work)
 in a list
 
 You can override these for each folder in the content directory by creating a 
-folder inside the templates directory. 
+folder inside the templates directory. The *modular* theme demonstrates this. Try using it in conjunction with the files in `sample-content/modular`.
 
 Content
 -------
@@ -205,9 +206,9 @@ e.g. if your site is located in the 'works' subfolder of your site, enter `"base
 
 **include_folders_in_index**: The link to each subfolders and any metadata in _index.html will be included in the index.html file for each folder. 
 
-**header_menu**: Used by the theme to generate a top menu for the site. Sample: "header_menu": [ { "uri": "/works", "text": "Works" },  { "uri": "/news", "text": "News" },  { "uri": "/blog", "text": "Blog" } ],
+**header_menu**: Used by the theme to generate a top menu for the site. Delete this section to remove this function. Sample: "header_menu": [ { "uri": "/works", "text": "Works" },  { "uri": "/news", "text": "News" },  { "uri": "/blog", "text": "Blog" } ],
 
-**footer_menu**: Used by the theme to generate a footer menu for the site. Sample: "header_menu": [  { "uri": "https://twitter.com/", "text": "Twitter" }, { "uri": "https://tumblr.com/", "text": "Tumblr"}, { "uri": "https://dreamwidth.org/", "text": "Dreamwidth" } ],
+**footer_menu**: Used by the theme to generate a footer menu for the site. Delete this section to remove this function. Sample: "header_menu": [  { "uri": "https://twitter.com/", "text": "Twitter" }, { "uri": "https://tumblr.com/", "text": "Tumblr"}, { "uri": "https://dreamwidth.org/", "text": "Dreamwidth" } ],
 
 **display_options**: { (The following tags are in the display_options subsection)
 
@@ -285,11 +286,12 @@ Avengers (Marvel Movies)", "Agent Carter (TV)", "Captain America (Movies)" ]
 **exclude_series:** When grouping by series or in work metadata, ignore this 
 series - useful e.g. if you have set up a "My MCU works" series.
 
+} (end of tag_processing)
 
 FAQ
 ---
 
-Coming soon!
+TBD
 
 Credits
 -------
