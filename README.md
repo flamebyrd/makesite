@@ -51,7 +51,7 @@ This updates the archive files, and while it's running the script will create a 
    - Mac: Run `makesite.sh` from a terminal window pointed to the *makesite* folder: 
         - Right click on the *makesite* directory, choose "Services" and then "New Terminal at folder" from the menu. Alternatively, you can type "cd " and drag the folder to the terminal to copy the folder path.
         - In the terminal window, type: ```sh makesite.sh```. Wait until text stops scrolling down the screen. 
-2. Open http://localhost:8000/ in a web browser to see a temporary local preview version of your archive. This will remain visible on your computer while the *makesite* script is running. If you haven't added any content yet, you should see the default *makesite* home page. 
+2. The terminal will output something like "Serving HTTP on :: port 8000 (http://[::]:8000/) ...". Open the site http://localhost:8000/ (modify the :8000 part if the port on your terminal is different) in a web browser to see a temporary local preview version of your archive. This will remain visible on your computer while the *makesite* script is running. If you haven't added any content yet, you should see the default *makesite* home page. 
 3. When you're done, stop the *makesite* script:
     - windows: Type Control-C in the terminal window.
     - mac: Type Control-C in the terminal window.  
