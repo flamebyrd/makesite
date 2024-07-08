@@ -181,6 +181,8 @@ any non-header text is encountered, the script stops checking for headers any fu
 
 **exclude_from_index**: Ignore this work when generating lists for the index file. Useful for pages like About and Content when they are included in the top menu or footer.
 
+**replace_spaces_in_filename_with**: Will replace spaces in the input filenames with the character provided. Default: false. Example: `"replace_spaces_in_filename_with": "_",`
+
 
 Configuration
 -------------
@@ -212,9 +214,9 @@ e.g. if your site is located in the 'works' subfolder of your site, enter `"base
 
 **include_folders_in_index**: The link to each subfolders and any metadata in _index.html will be included in the index.html file for each folder. 
 
-**header_menu**: Used by the theme to generate a top menu for the site. Delete this section to remove this function. Sample: "header_menu": [ { "uri": "/works", "text": "Works" },  { "uri": "/news", "text": "News" },  { "uri": "/blog", "text": "Blog" } ],
+**header_menu**: Used by the theme to generate a top menu for the site. Delete this section to remove this function. Sample: `"header_menu": [ { "uri": "/works", "text": "Works" },  { "uri": "/news", "text": "News" },  { "uri": "/blog", "text": "Blog" } ],`
 
-**footer_menu**: Used by the theme to generate a footer menu for the site. Delete this section to remove this function. Sample: "header_menu": [  { "uri": "https://twitter.com/", "text": "Twitter" }, { "uri": "https://tumblr.com/", "text": "Tumblr"}, { "uri": "https://dreamwidth.org/", "text": "Dreamwidth" } ],
+**footer_menu**: Used by the theme to generate a footer menu for the site. Delete this section to remove this function. Sample: `"header_menu": [  { "uri": "https://twitter.com/", "text": "Twitter" }, { "uri": "https://tumblr.com/", "text": "Tumblr"}, { "uri": "https://dreamwidth.org/", "text": "Dreamwidth" } ],`
 
 **display_options**: { (The following tags are in the display_options subsection)
 
@@ -249,7 +251,7 @@ this in the works list. Use the `media_type_default` option to define what
 media type should be used when no tag is available on the work.
 How to use: 
 ```
-"media_tags": ["fanfiction", "fanart", "fanvid"],
+"media_tags": ["fanfiction", "fanart", "fanvid", "podfic"],
 "media_type_default": "fanfiction",
 ```
 
