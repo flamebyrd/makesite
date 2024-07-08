@@ -181,14 +181,18 @@ def read_ao3_content(text, **params):
                 tag_val = series
             elif "Additional Tags" == tag_name:
                 filtered_tags = []
+                media_tags = config.get("media_tags", [])
+                media_tags = [x.casefold() for x in media_tags]
+                excluded_tags = config.get("excluded_tags", [])
+                excluded_tags = [x.casefold() for x in excluded_tags]
                 for freeform_tag in tag_val:
                     tag_text = freeform_tag.get_text()
-                    if tag_text in config.get("media_tags", []):
+                    if tag_text.casefold() in media_tags:
                         if content.get("media_type"):
                             content["media_type"].append(tag_text)
                         else:
                             content["media_type"] = [ tag_text ]
-                    elif not tag_text in config.get("excluded_tags", []):
+                    elif not tag_text.casefold() in excluded_tags:
                         filtered_tags.append(tag_text)
                 tag_val = filtered_tags
             else:
@@ -568,7 +572,7 @@ def main():
             "series_prefix": "Series: "
          },
         'tag_processing': {
-            "media_tags": ["fanfiction", "fanart", "fanvid"],
+            "media_tags": ["fanfiction", "fanart", "fanvid", "podfic"],
             "media_type_default": "fanfiction",
             "excluded_tags": [],
             "merge_tags": [],
