@@ -98,6 +98,9 @@ def read_content(filename, **params):
         'slug': match.group(2),
     }
 
+    if new_space := params.get("replace_spaces_in_filename_with", False):
+        content['slug'] = content['slug'].replace(' ', new_space)
+    
     if filename.endswith(('.html')) and '<div id="preface">' in text:
         # File is probably an AO3 work
         try:
@@ -563,6 +566,7 @@ def main():
         "flatten_site_structure": False,
         "include_folders_in_index": False,
         "ao3_content_type": "ao3_work", 
+        "replace_spaces_in_filename_with": False,
         'display_options': {
             "//order_by": [["fandom", False],["date", True],["title", False]],
             "order_by": ["date", True],
