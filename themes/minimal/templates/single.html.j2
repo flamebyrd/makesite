@@ -13,11 +13,11 @@
     <div class="meta">
       <dl class="tags">
           {{ meta('Rating', rating )}}
-          {{ meta('Archive Warning', archive_warning) }}
-          {{ meta('Category', category) }}
-          {{ meta('Fandom', fandom) }}
-          {{ meta('Relationship', relationship) }}
-          {{ meta('Character', character) }}
+          {{ meta('Archive Warning', archive_warning, "Archive Warnings") }}
+          {{ meta('Category', category, "Categories") }}
+          {{ meta('Fandom', fandom, "Fandoms") }}
+          {{ meta('Relationship', relationship, "Relationships") }}
+          {{ meta('Character', character, "Characters") }}
           {{ meta('Additional Tags', additional_tags) }}
           {{ meta('Language', language) }}
           {% if series %}
@@ -129,9 +129,12 @@ See the end of the chapter for <a href="#endnotes{{loop.index}}">notes</a>
 <a href="{{ base_path }}">← Back to {{ site_title }}</a>
 {% endblock %}
 
-{% macro meta(label, value) -%}
+{% macro meta(label, value, plural=false) -%}
 {% if value -%}
 {% if value is not string and value is sequence %}
+{% if plural and value|length > 1 %}
+{% set label = plural %}
+{% endif %}
 {% set value = value|join(', ') %}
 {% endif %}
 <dt>{{ label }}:</dt>

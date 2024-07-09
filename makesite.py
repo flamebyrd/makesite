@@ -169,10 +169,10 @@ def read_ao3_content(text, **params):
     if ( bottom_message := afterword.find('p', class_="message") ):
         content['bottom_message'] = bottom_message.decode_contents(formatter='minimal')
     for tag in tags.find_all('dt'):
-        tag_name = tag.get_text().rstrip(':')
+        tag_name = tag.get_text().rstrip(':').casefold()
         tag_val = tag.find_next("dd").find_all('a')
         if (tag_val):
-            if "Series" == tag_name:
+            if "series" == tag_name:
                 series = []
                 for link in tag_val:
                     series_index = re.search(r'\d+', link.find_previous_sibling(string=True)) or 0
@@ -182,7 +182,7 @@ def read_ao3_content(text, **params):
                     if not series_title in config.get("exclude_series", []):
                         series.append({ "index": series_index, "title": series_title })
                 tag_val = series
-            elif "Additional Tags" == tag_name:
+            elif "additional tags" == tag_name:
                 filtered_tags = []
                 media_tags = config.get("media_tags", [])
                 media_tags = [x.casefold() for x in media_tags]
@@ -204,6 +204,9 @@ def read_ao3_content(text, **params):
             tag_val = tag.find_next("dd").get_text()
         if isinstance(tag_val, list):
             tag_val = merge_tags(tag_val, config.get("merge_tags", []))
+        if merge_fieldnames := params.get("merge_fieldnames", False):
+            if tag_name in merge_fieldnames.keys():
+                tag_name = merge_fieldnames[tag_name]
         content[tag_name] = tag_val
 
     for fields in afterword.find_all('dt'):
@@ -218,7 +221,7 @@ def read_ao3_content(text, **params):
     if "media_tags" in config and not content.get("media_type"):
         content["media_type"] = config.get("media_type_default")
 
-    matches = re.findall(r"^\s*(Words|Chapters|Published): ([0-9,.\--/]*)", content['Stats'], re.MULTILINE)
+    matches = re.findall(r"^\s*(Words|Chapters|Published): ([0-9,.\--/]*)", content['stats'], re.MULTILINE)
     if matches:
         for label, value in matches:
             content.update({ label: value })
@@ -244,18 +247,14 @@ def read_ao3_content(text, **params):
                     chapters.append(current_chapter)
                     current_chapter = {}
                 current_chapter["title"] = chapter_title.get_text()
-                print("title " + current_chapter["title"])
             if chapter_summary_label := div.find('p', string="Chapter Summary"):
                 current_chapter["summary"] = chapter_summary_label.find_next_sibling('blockquote', class_="userstuff").decode_contents(formatter='minimal')
-                print("summary " + current_chapter["summary"])
             if chapter_notes_label := div.find('p', string="Chapter Notes"):
                 chapter_notes_content = chapter_notes_label.find_next_sibling('blockquote', class_="userstuff") 
                 if chapter_notes_content: #If the chapter only had an end note the script was grabbing the end notes here
                     current_chapter["notes"] = chapter_notes_content.decode_contents(formatter='minimal')
-                    print("top notes " + current_chapter["notes"])
             if chapter_end_notes_label := div.find('p', string="Chapter End Notes"):
                 current_chapter["end_notes"] = chapter_end_notes_label.find_next_sibling('blockquote', class_="userstuff").decode_contents(formatter='minimal')
-                print("end notes " + current_chapter["end_notes"])
         elif "userstuff" in css_class:
                 current_chapter["content"] = div.decode_contents(formatter='minimal')
         else:
@@ -588,6 +587,14 @@ def main():
             "excluded_tags": [],
             "merge_tags": [],
             "fandom_groups": [],
+         },
+         'merge_fieldnames': {
+            'fandoms': 'fandom',
+            'relationships': 'relationship',
+            'characters': 'character',
+            'categories': 'category',
+            'additional tag': 'additional_tags',
+            'archive warnings': 'archive_warning'
          }
     }
 
