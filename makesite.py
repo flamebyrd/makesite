@@ -185,18 +185,20 @@ def read_ao3_content(text, **params):
             elif "additional tags" == tag_name:
                 filtered_tags = []
                 media_tags = config.get("media_tags", [])
-                media_tags = [x.casefold() for x in media_tags]
                 excluded_tags = config.get("excluded_tags", [])
                 excluded_tags = [x.casefold() for x in excluded_tags]
                 for freeform_tag in tag_val:
                     tag_text = freeform_tag.get_text()
-                    if tag_text.casefold() in media_tags:
+                    try: # Use the version of the media tag in the params for formatting
+                        media_tag_index = [x.casefold() for x in media_tags].index(tag_text.casefold())
+                        media_tag = media_tags[media_tag_index]
                         if content.get("media_type"):
-                            content["media_type"].append(tag_text)
+                            content["media_type"].append(media_tag)
                         else:
-                            content["media_type"] = [ tag_text ]
-                    elif not tag_text.casefold() in excluded_tags:
-                        filtered_tags.append(tag_text)
+                            content["media_type"] = [ media_tag ]
+                    except ValueError:                        
+                        if not tag_text.casefold() in excluded_tags:
+                            filtered_tags.append(tag_text)
                 tag_val = filtered_tags
             else:
                 tag_val = list(map(lambda val: val.get_text(), tag_val))
