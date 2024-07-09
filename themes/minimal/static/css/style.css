@@ -65,6 +65,23 @@ p.summary {
     margin-bottom: 0.25em;
 }
 
+.preface {
+    margin-bottom: 3rem;
+}
+
+.chapters h2 {
+    margin-top: 3rem;
+}
+
+.meta blockquote, .endnote-link {
+    margin: 1em;
+}
+
+h2.content-heading {
+    font-size: 1.2em;
+    font-weight: 500;
+}
+
 div .more {
     margin-top: 0;
     font-weight: bold;

@@ -4,9 +4,10 @@
     {{ super() }}
 {% endblock %}
 {% block content %}
+<!-- single.html.j2 -->
 <article class="single">
-  <h1>{{ title }}</h1>
-  <div id="preface">
+  {% if ao3_content_type == content_type %}
+  <div id="preface" class="preface">
     {{ top_message }}
 
     <div class="meta">
@@ -32,21 +33,21 @@
           {% endif %}
         <dt>Stats:</dt>
         <dd>
-          Published: {{ date }}
-          Words: {{ words }}
-          Chapters: {{ chapters }}
+          {{ "Published: " ~ date if date }}
+          {% if words %}Words: {{ words }} {% endif %}
+          {% if chapters %}Chapters: {{ chapters }} {% endif %}
         </dd>
       </dl>
       <h1>{{ title }}</h1>
       <div class="byline">by {{ author|join(', ') }}</div>
-        <p>Summary</p>
         {% if summary -%}
-        <blockquote class="userstuff">{{ summary }}</blockquote>
+        <h2 class="content-heading">Summary</h2>
+        <blockquote class="summary">{{ summary }}</blockquote>
         {% endif %}
 
         {% if notes -%}
-        <p>Notes</p>
-          <blockquote class="userstuff">{{ notes }}</blockquote>
+        <h2 class="content-heading">Notes</h2>
+          <blockquote class="notes">{{ notes }}</blockquote>
         {% endif %}
         {% if end_notes -%}
           <div class="endnote-link">
@@ -55,24 +56,55 @@
         {% endif %}
   </div>
   </div>
+  {% else %}
+    <h1>{{ title }}</h1>
+  {% endif %}
 
+<div id="chapters" class="chapters">
 {% if chapters_content %}
+
 {% for chapter in chapters_content %}
- <h2>{{ chapter.title }}</h2>
+<div class="meta">
+<h2>{{ chapter.title }}</h2>
+{% if chapter.summary %}
+<h3>Chapter Summary</h3>
+<blockquote class="chapter-summary">
+{{ chapter.summary }}
+</blockquote>
+{% endif %}
 {% if chapter.notes %}
-<blockquote>
+<h3>Chapter Notes</h3>
+<blockquote class="chapter-notes">
 {{ chapter.notes }}
 </blockquote>
 {% endif %}
+{% if chapter.end_notes %}
+<div class="endnote-link">
+See the end of the chapter for <a href="#endnotes{{loop.index}}">notes</a>
+</div>
+{% endif %}
+</div>
 {{ chapter.content }}
 {% if chapter.end_notes %}
-<blockquote>
+<div class="meta">
+<h3 id="endnotes{{loop.index}}">Chapter End Notes</h3>
+<blockquote class="chapter-endnotes">
 {{ chapter.end_notes }}
 </blockquote>
+</div>
 {% endif %}
 {% endfor %}
 {% else %}
 {{ content }}
+{% endif %}
+</div>
+
+{% if end_notes %}
+<div id="afterword" class="afterword">
+<div id="endnotes">
+<h2 class="content-heading">End Notes</h2>
+<blockquote>{{ end_notes }}</blockquote>
+</div>
 {% endif %}
 
 {% if series %}

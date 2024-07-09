@@ -110,6 +110,23 @@ article h1 a:hover, article h1 a:active,
     color: #777777;
 }
 
+.preface {
+    margin-bottom: 3rem;
+}
+
+.chapters h2 {
+    margin-top: 3rem;
+}
+
+.meta blockquote, .endnote-link {
+    margin: 1em;
+}
+
+h2.content-heading {
+    font-size: 1.2em;
+    font-weight: 500;
+}
+
 p.meta {
     margin-top: 0;
     font-size: 0.8em;
@@ -148,6 +165,39 @@ div .more {
     content: '\a0| ';
     margin-left: -0.15em;
     font-style: normal;
+}
+
+.list h1, .list h2, .list h3, .list h4, .list h5, .list h6, .list h7 {
+    font-weight: bold;
+}
+
+.list h2 {
+    font-size: 1.75rem;
+}
+
+.list h3 {
+    font-size: 1.6rem;
+}
+
+.list h4 {
+    font-size: 1.4rem;
+}
+
+.list h5 {
+    font-size: 1.2rem;
+}
+
+.list h6 {
+    font-size: 1.15rem;
+}
+
+.list h7 {
+    font-size: 1.1rem;
+}
+
+.list .title {
+    font-size: 1.1rem;
+    font-weight: 600;
 }
 
 .single dl.tags {

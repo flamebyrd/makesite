@@ -237,24 +237,31 @@ def read_ao3_content(text, **params):
     chapters = []
     current_chapter = {}
     for div in chapters_div.find_all('div', recursive=False):
-        if chapter_title := div.find('h2', class_="heading"):
-            if current_chapter:
-                chapters.append(current_chapter)
-            current_chapter = {}
-            current_chapter["title"] = chapter_title.get_text()
+        css_class = div.get("class")
+        if "meta" in css_class:
+            if chapter_title := div.find('h2', class_="heading"):
+                if current_chapter: #If we find a chapter heading we should add the previous chapter to the list
+                    chapters.append(current_chapter)
+                    current_chapter = {}
+                current_chapter["title"] = chapter_title.get_text()
+                print("title " + current_chapter["title"])
+            if chapter_summary_label := div.find('p', string="Chapter Summary"):
+                current_chapter["summary"] = chapter_summary_label.find_next_sibling('blockquote', class_="userstuff").decode_contents(formatter='minimal')
+                print("summary " + current_chapter["summary"])
             if chapter_notes_label := div.find('p', string="Chapter Notes"):
-                current_chapter["notes"] = chapter_notes_label.find_next('blockquote', class_="userstuff").decode_contents(formatter='minimal')
-            elif chapter_notes_label := div.find('p', string="Chapter Summary"):
-                current_chapter["summary"] = chapter_notes_label.find_next('blockquote', class_="userstuff").decode_contents(formatter='minimal')
-        elif css_class := div.get("class"):
-            if "userstuff" in css_class:
+                chapter_notes_content = chapter_notes_label.find_next_sibling('blockquote', class_="userstuff") 
+                if chapter_notes_content: #If the chapter only had an end note the script was grabbing the end notes here
+                    current_chapter["notes"] = chapter_notes_content.decode_contents(formatter='minimal')
+                    print("top notes " + current_chapter["notes"])
+            if chapter_end_notes_label := div.find('p', string="Chapter End Notes"):
+                current_chapter["end_notes"] = chapter_end_notes_label.find_next_sibling('blockquote', class_="userstuff").decode_contents(formatter='minimal')
+                print("end notes " + current_chapter["end_notes"])
+        elif "userstuff" in css_class:
                 current_chapter["content"] = div.decode_contents(formatter='minimal')
-        elif chapter_end_notes_label := div.find('p', string="Chapter End Notes"):
-            current_chapter["end_notes"] = chapter_end_notes_label.find_next('blockquote', class_="userstuff").decode_contents(formatter='minimal')
         else:
             continue
-    if current_chapter: #Make sure last chapter is added
-        chapters.append(current_chapter)
+    if current_chapter: #Make sure last  chapter is added
+        chapters.append(current_chapter)   
     content["chapters_content"] = list(chapters) 
     soup.decompose()
 

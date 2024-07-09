@@ -1,33 +1,47 @@
-{% extends "base.html.j2" %}
+{% if not standalone %}{% extends "base.html.j2" %}
 {% block title %}{{ title }}{% endblock %}
+{% endif -%}
 {% block content %}
+<!-- list.html.j2 -->
+{% set h_depth = h_depth or 1 %}
+<h{{ h_depth }}>{{ title }}</h{{ h_depth or 1 }}>
+
+{{ content }}
 <div class="list">
+{% if display_options.get("group_by") %}
+
 {% set grouping = display_options.get("group_by") %}
 
-{% if grouping %}
-
 {% if display_options.fandom_nav %}
+{% set fandoms = items|flattenbyattribute('fandom')|map(attribute='fandom')|unique|sort %}
+{% if fandoms|length > 1 %}
 <nav role="navigation">
-<h2>All Fandoms</h2>
+<h{{ h_depth+1 }}>All Fandoms</h{{ h_depth+1 }}>
 <details>
 <summary>View fandoms list.</summary>
 <ul>
-{% for fandom in items|flattenbyattribute('fandom')|map(attribute='fandom')|unique|sort -%}
+{% for fandom in fandoms -%}
+{% if fandom %}
 <li><a href="#{{ fandom|htmlid }}">{{ fandom }}</a></li>
+{% endif %}
 {% endfor %}
 </ul>
 </details>
 </nav>
 {% endif %}
-{% set ns = namespace( h_depth = 2, loop_depth = -1, group_name = grouping[0] ) %}
+{% endif %}
 
+{% set ns = namespace( h_depth = h_depth+1, loop_depth = -1, group_name = grouping[0] ) %}
 {% for group, works, depth in items|grouprecursive(grouping) -%}
     {% set ns.group_name = grouping[depth] -%}
     {% if group -%} {# We only want to insert a heading if this group has a value #}
-    {% if ns.loop_depth != depth -%} {# If we're working with another group type we need to update the heading depth #}
+    {% if ns.loop_depth < depth -%} {# If we're working with another group type we need to update the heading depth #}
         {% set ns.loop_depth = depth -%}
         {% set ns.h_depth = 2 if depth == 0 else ns.h_depth+1 -%}
-    {% endif -%}
+    {% elif ns.loop_depth > depth %}
+        {% set ns.loop_depth = depth -%}
+        {% set ns.h_depth = 2 if depth == 0 else ns.h_depth-1 -%}
+ {% endif -%}
     <h{{ ns.h_depth }} class="{{ ns.group_name }}" id="{{ group|htmlid }}">
     {% if ns.group_name == 'series' and display_options.series_prefix -%} 
       {{ display_options.series_prefix + group }}
