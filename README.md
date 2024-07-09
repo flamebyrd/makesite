@@ -181,8 +181,6 @@ any non-header text is encountered, the script stops checking for headers any fu
 
 **exclude_from_index**: Ignore this work when generating lists for the index file. Useful for pages like About and Content when they are included in the top menu or footer.
 
-**replace_spaces_in_filename_with**: Will replace spaces in the input filenames with the character provided. Default: false. Example: `"replace_spaces_in_filename_with": "_",`
-
 
 Configuration
 -------------
@@ -210,13 +208,15 @@ e.g. if your site is located in the 'works' subfolder of your site, enter `"base
 
 **pretty_uris**: Do the page URLs look like `https://example.com/works/Title of Work/` or `https://example.com/works/Title of Work.html`. Default: true
 
-**flatten_site_structure**: Output all content in a single directory. Subfolders in the 'content' folder will be used to group pages in the final, singular index.html file. See below for more details.
+**flatten_site_structure**: Output all content in a single directory. Subfolders in the 'content' folder will be used to group pages in the final, singular index.html file.
 
 **include_folders_in_index**: The link to each subfolders and any metadata in _index.html will be included in the index.html file for each folder. 
 
 **header_menu**: Used by the theme to generate a top menu for the site. Delete this section to remove this function. Sample: `"header_menu": [ { "uri": "/works", "text": "Works" },  { "uri": "/news", "text": "News" },  { "uri": "/blog", "text": "Blog" } ],`
 
 **footer_menu**: Used by the theme to generate a footer menu for the site. Delete this section to remove this function. Sample: `"header_menu": [  { "uri": "https://twitter.com/", "text": "Twitter" }, { "uri": "https://tumblr.com/", "text": "Tumblr"}, { "uri": "https://dreamwidth.org/", "text": "Dreamwidth" } ],`
+
+**replace_spaces_in_filename_with**: Will replace spaces in the input filenames with the character provided. Default: false. Example: `"replace_spaces_in_filename_with": "_",`
 
 **display_options**: { (The following tags are in the display_options subsection)
 
@@ -248,7 +248,8 @@ that if fandom groups are enabled this will only include the top level
 of the work (fanfiction, fanart, fanvid, etc). You can then use this in 
 templates or enter 'media_type' in the group_by configuration to group by 
 this in the works list. Use the `media_type_default` option to define what 
-media type should be used when no tag is available on the work.
+media type should be used when no tag is available on the work. The system will use 
+the capitalisation in this option to format the tag used on display.
 How to use: 
 ```
 "media_tags": ["fanfiction", "fanart", "fanvid", "podfic"],
@@ -295,6 +296,21 @@ Avengers (Marvel Movies)", "Agent Carter (TV)", "Captain America (Movies)" ]
 series - useful e.g. if you have set up a "My MCU works" series.
 
 } (end of tag_processing)
+
+**merge_fieldnames**: The script will use this to account for differences in 
+field names between input files from different sources (e.g. other sites 
+using otwarchive) and/or plural vs singular field names. You shouldn't need to 
+change this but it's provided as an option in case you do. Default: 
+```
+'merge_fieldnames': {
+  'fandoms': 'fandom',
+  'relationships': 'relationship',
+  'characters': 'character',
+  'categories': 'category',
+  'additional tag': 'additional_tags',
+  'archive warnings': 'archive_warning'
+}
+```
 
 FAQ
 ---
