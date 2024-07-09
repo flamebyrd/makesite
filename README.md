@@ -240,6 +240,9 @@ that if fandom groups are enabled this will only include the top level
 (group) fandoms in the list.
 `"fandom_nav": true,`
 
+**display_copyright**: Show the copyright line in the default theme footer. Default: True
+e.g. `"display_copyright": true`
+
 } (end of display_options)
 
 **tag_processing**: { (The following options are in the tag_processing subsection)
