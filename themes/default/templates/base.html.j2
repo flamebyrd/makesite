@@ -50,7 +50,9 @@
 <footer>
   {% block footer %}
 <section>
+{% if display_options.display_copyright %}
 <p>&copy; {{ current_year }}</p>
+{% endif %}
 {% if footer_menu %}
 <p>
 {% for link in footer_menu %}

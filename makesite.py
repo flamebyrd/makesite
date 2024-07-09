@@ -581,7 +581,8 @@ def main():
             "group_by": [ "fandom", "subfandom", "series"],
             "group_nav": True,
             "fandom_nav": True,
-            "series_prefix": "Series: "
+            "series_prefix": "Series: ",
+            "display_copyright": True
          },
         'tag_processing': {
             "media_tags": ["fanfiction", "fanart", "fanvid", "podfic"],
