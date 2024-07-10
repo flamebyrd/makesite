@@ -171,7 +171,10 @@ def read_ao3_content(text, **params):
     for tag in tags.find_all('dt'):
         tag_name = tag.get_text().rstrip(':').casefold()
         tag_val = tag.find_next("dd").find_all('a')
+        excluded_tags = [x.casefold() for x in config.get("excluded_tags", [])]
         if (tag_val):
+            tag_val = merge_tags(tag_val, config.get("merge_tags", []))
+            tag_val = [ item for item in tag_val if not item.get_text().casefold() in excluded_tags]
             if "series" == tag_name:
                 series = []
                 for link in tag_val:
@@ -185,8 +188,6 @@ def read_ao3_content(text, **params):
             elif "additional tags" == tag_name:
                 filtered_tags = []
                 media_tags = config.get("media_tags", [])
-                excluded_tags = config.get("excluded_tags", [])
-                excluded_tags = [x.casefold() for x in excluded_tags]
                 for freeform_tag in tag_val:
                     tag_text = freeform_tag.get_text()
                     try: # Use the version of the media tag in the params for formatting
@@ -197,15 +198,13 @@ def read_ao3_content(text, **params):
                         else:
                             content["media_type"] = [ media_tag ]
                     except ValueError:                        
-                        if not tag_text.casefold() in excluded_tags:
-                            filtered_tags.append(tag_text)
+                        filtered_tags.append(tag_text)
                 tag_val = filtered_tags
             else:
                 tag_val = list(map(lambda val: val.get_text(), tag_val))
         else:
             tag_val = tag.find_next("dd").get_text()
-        if isinstance(tag_val, list):
-            tag_val = merge_tags(tag_val, config.get("merge_tags", []))
+            if tag_val.casefold() in excluded_tags: continue
         if merge_fieldnames := params.get("merge_fieldnames", False):
             if tag_name in merge_fieldnames.keys():
                 tag_name = merge_fieldnames[tag_name]
