@@ -1,13 +1,12 @@
-#!/usr/bin/sh
+#!/bin/bash -x
+cd "$(dirname "$0")"
 
 VENV="venv"
 
 if which python3 > /dev/null 2>&1; then
     PYTHON="python3"
-    PIP="pip3"
 else
     PYTHON="python"
-    PIP="pip"
 fi
 
 if [ -d "$VENV" ]; then
@@ -15,9 +14,10 @@ if [ -d "$VENV" ]; then
     source venv/bin/activate
 else
     $PYTHON -m venv venv
+    PIP="$VENV/bin/pip"
     source venv/bin/activate
-    $PYTHON -m pip install --upgrade pip
     $PIP install -r requirements.txt
 fi
+PYTHON="$VENV/bin/python"
 $PYTHON makesite.py
-$PYTHON -u -m http.server -d _site;
+#$PYTHON -u -m http.server 8800 -d _site;

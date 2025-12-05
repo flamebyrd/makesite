@@ -2,7 +2,7 @@
 
 # The MIT License (MIT)
 #
-# Copyright (c) 2018-2022 Sunaina Pai
+# Copyright (c) 2018-2022 Sunaina Pai, 2022-2025 Flamebyrd
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -41,6 +41,7 @@ from collections.abc import Iterable
 from collections import defaultdict
 import pathlib
 import urllib
+import frontmatter
 
 
 def fread(filename):
@@ -70,11 +71,23 @@ def truncate(text, words=25):
 
 
 def read_headers(text):
-    """Parse headers in text and yield (key, value) tuples."""
-    for match in re.finditer(r'\s*<!--\s*(.+?)\s*:\s*(.+?)\s*-->\s*|.+', text):
-        if not match.group(1):
-            break
-        yield match.group(1), match.group(2), match.end()
+    if frontmatter.checks(text):
+        """Check if the file has frontmatter supported by the frontmatter module"""
+        return frontmatter.parse(text)
+    else:
+        """Parse headers in text and yield (key, value) tuples."""
+        # Read headers.
+        metadata = {};
+        end = 0
+        for match in re.finditer(r'\s*<!--\s*(.+?)\s*:\s*(.+?)\s*-->\s*|.+', text):
+            if not match.group(1):
+                break
+            metadata[match.group(1)] = match.group(2)
+            end = match.end()
+
+        # Separate content from headers.
+        body = text[end:]
+        return metadata, body
 
 
 def rfc_2822_format(date_str):
@@ -109,17 +122,12 @@ def read_content(filename, **params):
             ao3_content, text = read_ao3_content(text, **params)
             content.update(**ao3_content)
             content["content_type"] = params.get('ao3_content_type', 'ao3_work')
+            content['content'] = text
         except ImportError as e:
             log('WARNING: Cannot read HTML in {}: {}', filename, str(e))
     else:
-        # Read headers.
-        end = 0
-        for key, val, end in read_headers(text):
-            content[key] = val
-
-        # Separate content from headers.
-        text = text[end:]
-
+        metadata, body = read_headers(text)
+        content = content | metadata
         if not content.get('content_type') and not params.get('content_type'):
             content['content_type'] = params.get('default_content_type', 'page')
 
@@ -129,14 +137,19 @@ def read_content(filename, **params):
                 if _test == 'ImportError':
                     raise ImportError('Error forced by test')
                 import commonmark
-                text = commonmark.commonmark(text)
+                body = commonmark.commonmark(body)
+                if content.get('summary'):
+                    content['summary'] = commonmark.commonmark(content['summary'])
+                if content.get('notes'):
+                    content['notes'] = commonmark.commonmark(content['notes'])
+                content['content'] = body
             except ImportError as e:
                 log('WARNING: Cannot render Markdown in {}: {}', filename, str(e))
 
     from datetime import date
 
     # Update the dictionary with content and RFC 2822 date.
-    content['content'] = text
+
     if ( content.get('date') ):
         content.update({
             'rfc_2822_date': rfc_2822_format(content['date']),
@@ -234,7 +247,7 @@ def read_ao3_content(text, **params):
 
     if "words" in content:
         import locale
-        locale.setlocale(locale.LC_ALL, '')
+        locale.setlocale(locale.LC_NUMERIC, 'en_US' )
         content['words'] = locale.atoi(content['words'])
     chapters_div = soup.find(id='chapters', class_="userstuff")
     text = chapters_div.decode_contents(formatter='minimal')
@@ -412,10 +425,11 @@ def generate_uri(content):
 def generate_html_id(text):
     text = text.replace(" ", "_")
     text = text.casefold()
-    return re.sub("\W", "", text)
+    return re.sub("\\W", "", text)
 
 def make_pages(src, dst, layout, **params):
     """Generate pages from page content."""
+    log("Making {} {} {}", src, dst, layout)
     items = []
     series_nav = defaultdict(dict)
 
@@ -430,6 +444,7 @@ def make_pages(src, dst, layout, **params):
             content['slug'] = ''          
             content['dst_path'] = render(dst, **content ).replace('//', '/')
         else:
+            log("Making {}", dst)
             content['dst_path'] = render(dst, **content)
 
         if not content.get('uri'):
@@ -445,6 +460,7 @@ def make_pages(src, dst, layout, **params):
     #Create the content files, and generate series navigation
     for content in items:
         if series := content.get('series'):
+            log("{}", series)
             for i, s in enumerate(series):
                 series_works = series_nav.get(s.get('title'))
                 current_index = int(s.get('index'))
@@ -563,6 +579,9 @@ def main():
     # Default parameters.
     params = {
         'base_path': '/',
+        "content_dir": "content",
+        "output_dir": "_site",
+        "themes_dir": "themes",
         'render': 'yes',
         "site_title": "My Fanfic Site",
         'subtitle': 'Site Sub Title',
@@ -642,10 +661,11 @@ def main():
         with open('params.json', 'w') as outfile:
             json.dump(params, outfile, indent=2)
 
-    theme_dir = f"themes/{params.get('theme', 'default') }"
+    themes_dir = params.get('themes_dir', 'themes') 
+    theme_dir = os.path.join(themes_dir, params.get('theme', 'default'))
     site_dir = params.get('output_dir', '_site')
 
-    # Create a new _site directory from scratch.
+    # Create a new output directory from scratch.
     if os.path.isdir(site_dir):
         shutil.rmtree(site_dir, ignore_errors=False)
     shutil.copytree(f'{ theme_dir }/static', site_dir)
@@ -663,22 +683,23 @@ def main():
     list_layout = template_env.get_template('list.html.j2')
     summary_layout = template_env.get_template('summary.html.j2')
 
-    # Create subfolder pages.
+    # Detect if the theme uses template folders
     theme_folder_templates = False
-    # if os.listdir(os.path.join(theme_dir, 'templates')):
     if next(os.walk(os.path.join(theme_dir, 'templates')))[1]:
         theme_folder_templates = True
 
     site_output = list() #Only used if site structure is flattened
 
-    if not os.path.isdir('content'):
-        shutil.copytree(f'sample-content/default', 'content')
+    content_dir = params.get('content_dir', 'content')
 
-    for (dirpath, dirnames, filenames) in os.walk('content', topdown=True):
+    if not os.path.isdir(content_dir):
+        shutil.copytree(f'sample-content/default', content_dir)
+
+    for (dirpath, dirnames, filenames) in os.walk(content_dir, topdown=True):
         log('Reading ' + dirpath)
         dirnames.sort()
         folder_params = copy.deepcopy(params)
-        folder = os.path.relpath(dirpath, 'content')
+        folder = os.path.relpath(dirpath, content_dir)
         folder_items = list()
 
         # Fetching metadata for the index page (also sets defaults for content in this folder)
@@ -689,6 +710,7 @@ def main():
             
         if params.get('include_folders_in_index'):
             for dirname in dirnames:
+                folder_content = False
                 if os.path.isfile( os.path.join(dirpath, dirname, '_index.html') ):
                     folder_content = read_content( os.path.join(dirpath, dirname, '_index.html'), **params)
                 elif os.path.isfile( os.path.join(dirpath, dirname, '_index.md') ):
@@ -726,6 +748,18 @@ def main():
         #           feed_xml, item_xml, type='news', title='News', **params)
     if params.get('flatten_site_structure'):
         make_list(site_output, os.path.normpath(os.path.join(site_dir, 'index.html')), list_layout, item_layout = False, **params)
+
+    from http.server import HTTPServer, SimpleHTTPRequestHandler
+
+    # Serve the generated site
+    os.chdir(params.get('output_dir'))                                                                                                                                                                                      
+    try:
+        log("Serving site at localhost:8000")
+        httpd = HTTPServer(('localhost', 8000), SimpleHTTPRequestHandler)
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        log("Received interrupt, shutting down")
+        httpd.shutdown()
 
 # Test parameter to be set temporarily by unit tests.
 _test = None
