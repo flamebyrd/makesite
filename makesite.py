@@ -129,7 +129,7 @@ def read_content(filename, **params):
         content = content | metadata
         if not content.get('content_type') and not params.get('content_type'):
             content['content_type'] = params.get('default_content_type', 'page')
-
+            
         # Convert Markdown content to HTML.
         if filename.endswith(('.md', '.mkd', '.mkdn', '.mdown', '.markdown')):
             try:
@@ -516,7 +516,7 @@ def make_list(files, dst, list_layout, item_layout, **params):
     for item in files:
         item_params = dict(params, **item)
         if not item_params.get('summary'):
-            item_params['summary'] = truncate(item['content'])
+            item_params['summary'] = truncate(item.get('content', ''))
         if item_layout:
             item_content = item_layout.render(**item_params)
             # item_params = render_metadata(item_params, template="summary")
@@ -548,6 +548,11 @@ def sort_series(item):
         return tuple(series_sort)
     else:
         return ( '', 0 )
+    
+def markdown_parse(str):
+    import commonmark
+    log(str)
+    return commonmark.commonmark(str)
 
 def get_templates(template_env, theme_dir, folder):
     single_layout = template_env.get_template('single.html.j2')
@@ -576,7 +581,7 @@ def get_templates(template_env, theme_dir, folder):
 def main():
 
     # Default parameters.
-    params = {
+    params = defaultdict(dict, {
         'base_path': '/',
         "content_dir": "content",
         "output_dir": "_site",
@@ -616,7 +621,7 @@ def main():
             'additional tag': 'additional_tags',
             'archive warnings': 'archive_warning'
          }
-    }
+    })
 
     sys.stdin.reconfigure(encoding='utf-8')
     sys.stdout.reconfigure(encoding='utf-8')
@@ -663,11 +668,14 @@ def main():
     themes_dir = params.get('themes_dir', 'themes') 
     theme_dir = os.path.join(themes_dir, params.get('theme', 'default'))
     site_dir = params.get('output_dir', '_site')
+    assets_dir = params.get('assets_dir', 'assets')
 
     # Create a new output directory from scratch.
     if os.path.isdir(site_dir):
         shutil.rmtree(site_dir, ignore_errors=False)
-    shutil.copytree(f'{ theme_dir }/static', site_dir)
+    shutil.copytree(f'{ theme_dir }/static', os.path.join(site_dir, 'theme'))
+    log("Copying assets dir: {}", assets_dir)
+    shutil.copytree(assets_dir, os.path.join(site_dir, 'assets'))
 
     #Load Jinja2 templates
     template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(f'{ theme_dir }/templates'))
@@ -677,6 +685,7 @@ def main():
     template_env.filters["grouprecursive"] = group_recursive
     template_env.filters["htmlid"] = generate_html_id
     template_env.filters["humanformat"] = human_format
+    template_env.filters["markdown"] = markdown_parse
 
     single_layout = template_env.get_template('single.html.j2')
     list_layout = template_env.get_template('list.html.j2')
@@ -693,7 +702,7 @@ def main():
 
     if not os.path.isdir(content_dir):
         shutil.copytree(f'sample-content/default', content_dir)
-
+    
     for (dirpath, dirnames, filenames) in os.walk(content_dir, topdown=True):
         log('Reading ' + dirpath)
         dirnames.sort()
@@ -709,15 +718,15 @@ def main():
             
         if params.get('include_folders_in_index'):
             for dirname in dirnames:
-                folder_content = False
+                child_folder_content = dict()
                 if os.path.isfile( os.path.join(dirpath, dirname, '_index.html') ):
-                    folder_content = read_content( os.path.join(dirpath, dirname, '_index.html'), **params)
+                    child_folder_content = read_content( os.path.join(dirpath, dirname, '_index.html'), **params)
                 elif os.path.isfile( os.path.join(dirpath, dirname, '_index.md') ):
-                    folder_content = read_content( os.path.join(dirpath, dirname, '_index.md'), **params)
-                if folder_content:
-                    dst_path = os.path.join(site_dir, folder, dirname, 'index.html')          
-                    folder_content['uri'] = generate_uri( { 'base_path': params['base_path'], 'dst_path': dst_path, 'output_dir': site_dir })                    
-                    folder_items.append(folder_content)
+                    child_folder_content = read_content( os.path.join(dirpath, dirname, '_index.md'), **params)
+                # TODO: Better defaults handling
+                dst_path = os.path.join(site_dir, folder, dirname, 'index.html')     
+                child_folder_content['uri'] = generate_uri( { 'base_path': params['base_path'], 'dst_path': dst_path, 'output_dir': site_dir })                    
+                folder_items.append(child_folder_content)
                 
         # Fetch content templates from theme, starting in the current folder and walking back up the folder tree
         # This allows overriding templates with ones from closer in the file tree
@@ -728,7 +737,7 @@ def main():
             dst_path = os.path.normpath(os.path.join(site_dir, folder, '{{ slug }}/index.html'))
         else:
             dst_path = os.path.normpath(os.path.join(site_dir, folder, '{{ slug }}.html'))
-            
+               
         folder_items += make_pages(os.path.join(dirpath, '[!_]*.*'), dst_path, single_layout, **folder_params)
 
         if not os.path.isfile(os.path.join(dirpath, 'index.html')):
@@ -747,7 +756,6 @@ def main():
         #           feed_xml, item_xml, type='news', title='News', **params)
     if params.get('flatten_site_structure'):
         make_list(site_output, os.path.normpath(os.path.join(site_dir, 'index.html')), list_layout, item_layout = False, **params)
-
 
     import argparse
 
