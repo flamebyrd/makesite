@@ -19,5 +19,5 @@ else
     $PIP install -r requirements.txt
 fi
 PYTHON="$VENV/bin/python"
-$PYTHON makesite.py
+$PYTHON makesite.py --serve
 #$PYTHON -u -m http.server 8800 -d _site;

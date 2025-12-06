@@ -26,7 +26,6 @@
 
 """Make static website/blog with Python."""
 
-
 import os
 import shutil
 import re
@@ -717,7 +716,7 @@ def main():
                     folder_content = read_content( os.path.join(dirpath, dirname, '_index.md'), **params)
                 if folder_content:
                     dst_path = os.path.join(site_dir, folder, dirname, 'index.html')          
-                    folder_content['uri'] = generate_uri( { 'base_path': params['base_path'], 'dst_path': dst_path })                    
+                    folder_content['uri'] = generate_uri( { 'base_path': params['base_path'], 'dst_path': dst_path, 'output_dir': site_dir })                    
                     folder_items.append(folder_content)
                 
         # Fetch content templates from theme, starting in the current folder and walking back up the folder tree
@@ -749,17 +748,23 @@ def main():
     if params.get('flatten_site_structure'):
         make_list(site_output, os.path.normpath(os.path.join(site_dir, 'index.html')), list_layout, item_layout = False, **params)
 
-    from http.server import HTTPServer, SimpleHTTPRequestHandler
 
-    # Serve the generated site
-    os.chdir(params.get('output_dir'))                                                                                                                                                                                      
-    try:
-        log("Serving site at localhost:8000")
-        httpd = HTTPServer(('localhost', 8000), SimpleHTTPRequestHandler)
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        log("Received interrupt, shutting down")
-        httpd.shutdown()
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Generate a website!')
+    parser.add_argument('--serve', action='store_true',  help='start the webserver')
+    args = parser.parse_args()
+    if args.serve:
+        from http.server import HTTPServer, SimpleHTTPRequestHandler
+        # Serve the generated site
+        os.chdir(params.get('output_dir'))                                                                                                                                                                                      
+        try:
+            log("Serving site at localhost:8000")
+            httpd = HTTPServer(('localhost', 8000), SimpleHTTPRequestHandler)
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            log("Received interrupt, shutting down")
+            httpd.shutdown()
 
 # Test parameter to be set temporarily by unit tests.
 _test = None
