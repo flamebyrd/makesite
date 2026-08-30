@@ -429,7 +429,7 @@ def generate_html_id(text):
 def make_pages(src, dst, layout, **params):
     """Generate pages from page content."""
     log("Making {} {} {}", src, dst, layout)
-    items = []
+    items = dict()
     series_nav = defaultdict(dict)
 
     for src_path in glob.glob(src):
@@ -454,12 +454,11 @@ def make_pages(src, dst, layout, **params):
             for s in series:
                 series_nav[s.get('title')][s.get('index')] = { 'uri': generate_uri(content), 'title': content['title'] }
 
-        items.append(content)
+        items[content['uri']] = content
 
     #Create the content files, and generate series navigation
-    for content in items:
+    for uri, content in items.items():
         if series := content.get('series'):
-            log("{}", series)
             for i, s in enumerate(series):
                 series_works = series_nav.get(s.get('title'))
                 current_index = int(s.get('index'))
@@ -467,6 +466,14 @@ def make_pages(src, dst, layout, **params):
                     s['next'] = next_work
                 if prev_work := series_works.get(str(current_index -1)):
                     s['prev'] = prev_work
+
+        # breadcrumbs = []
+
+        # path = pathlib.PurePath(uri)
+        # for parent in path.parents:
+        #     breadcrumbs.append({ 'uri': parent, 'title': items.get(parent) })
+
+        # log("uri: {} breadcrumbs: {}", uri, breadcrumbs)
 
         # page_params = dict(params, **content)
 
@@ -492,7 +499,7 @@ def make_pages(src, dst, layout, **params):
             log('Rendering {} => {} ...', content['src_path'], content['dst_path'])
             fwrite(content['dst_path'], output)
 
-    return items
+    return items.values()
     # return sorted(items, key=lambda x: x['date'], reverse=True)
 
 def make_list(files, dst, list_layout, item_layout, **params):
@@ -551,7 +558,6 @@ def sort_series(item):
     
 def markdown_parse(str):
     import commonmark
-    log(str)
     return commonmark.commonmark(str)
 
 def get_templates(template_env, theme_dir, folder):
