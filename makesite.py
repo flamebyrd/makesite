@@ -586,6 +586,14 @@ def get_templates(template_env, theme_dir, folder):
 
 def main():
 
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Generate a website!')
+    parser.add_argument('--serve', action='store_true',  help='start the webserver')
+    parser.add_argument('-c', '--config', help='load a custom params.json')
+    
+    args = parser.parse_args()
+
     # Default parameters.
     params = defaultdict(dict, {
         'base_path': '/',
@@ -632,11 +640,17 @@ def main():
     sys.stdin.reconfigure(encoding='utf-8')
     sys.stdout.reconfigure(encoding='utf-8')
 
+    # Allow overriding the location of params.json via commandline
+    if args.config and os.path.isfile(args.config):
+        params_json = args.config
+    else:
+        params_json = 'params.json'
+
     # If params.json exists, load it, otherwise create it.
-    if os.path.isfile('params.json'):
+    if os.path.isfile(params_json):
         # We can't do a traditional merge because this dictionary contains another dictionary
-        user_params = json.loads(fread('params.json'))
-        # params.update(user_params)
+        user_params = json.loads(fread(params_json))
+
         for key, val in  user_params.items():
             if params.get(key) and isinstance(val, dict):
                 params[key].update(val)
@@ -763,11 +777,6 @@ def main():
     if params.get('flatten_site_structure'):
         make_list(site_output, os.path.normpath(os.path.join(site_dir, 'index.html')), list_layout, item_layout = False, **params)
 
-    import argparse
-
-    parser = argparse.ArgumentParser(description='Generate a website!')
-    parser.add_argument('--serve', action='store_true',  help='start the webserver')
-    args = parser.parse_args()
     if args.serve:
         from http.server import HTTPServer, SimpleHTTPRequestHandler
         # Serve the generated site
